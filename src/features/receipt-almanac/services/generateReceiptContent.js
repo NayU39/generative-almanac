@@ -34,8 +34,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-import { buildIssueCode, buildReceiptDateBlock, buildSerialNo, formatPrintedAt, getTodayIsoDate } from '../../../lib/date';
+import { getTodayIsoDate } from '../../../lib/date';
 import { buildMockReceipt } from '../data/mockReceipt';
+import { normalizeReceiptRecord } from '../utils/normalizeReceiptRecord';
 function getApiUrl() {
     if (typeof window === 'undefined') {
         return '/api/receipt-almanac/generate';
@@ -48,60 +49,6 @@ function getApiUrl() {
         return "".concat(protocol, "//127.0.0.1").concat(port ? ":".concat(port) : '', "/api/receipt-almanac/generate");
     }
     return "".concat(origin, "/api/receipt-almanac/generate");
-}
-function isNonEmptyString(value) {
-    return typeof value === 'string' && value.trim().length > 0;
-}
-function asList(value, fallback) {
-    if (!Array.isArray(value)) {
-        return fallback;
-    }
-    var normalized = value
-        .map(function (item) { return (typeof item === 'string' ? item.trim() : ''); })
-        .filter(Boolean)
-        .slice(0, 5);
-    return normalized.length > 0 ? normalized : fallback;
-}
-function normalizeReceipt(raw, input) {
-    var _a;
-    var fallback = buildMockReceipt(input.userInput, (_a = input.date) !== null && _a !== void 0 ? _a : getTodayIsoDate());
-    if (typeof raw !== 'object' || raw === null) {
-        return fallback;
-    }
-    var data = raw;
-    var date = isNonEmptyString(input.date) ? input.date : getTodayIsoDate();
-    var normalizedDate = buildReceiptDateBlock(date);
-    var issueCode = isNonEmptyString(data.issueCode) ? data.issueCode : buildIssueCode(date);
-    var serialNo = isNonEmptyString(data.serialNo)
-        ? data.serialNo
-        : buildSerialNo("".concat(date, ":").concat(input.userInput));
-    var metaSource = typeof data.meta === 'object' && data.meta !== null ? data.meta : {};
-    return {
-        title: isNonEmptyString(data.title) ? data.title : fallback.title,
-        subtitle: isNonEmptyString(data.subtitle) ? data.subtitle : fallback.subtitle,
-        issueCode: issueCode,
-        serialNo: serialNo,
-        date: normalizedDate,
-        stateLabel: isNonEmptyString(data.stateLabel) ? data.stateLabel : fallback.stateLabel,
-        headline: isNonEmptyString(data.headline) ? data.headline : fallback.headline,
-        yi: asList(data.yi, fallback.yi),
-        ji: asList(data.ji, fallback.ji),
-        meta: {
-            auspiciousTime: isNonEmptyString(metaSource.auspiciousTime)
-                ? metaSource.auspiciousTime
-                : fallback.meta.auspiciousTime,
-            direction: isNonEmptyString(metaSource.direction) ? metaSource.direction : fallback.meta.direction,
-            luckyColor: isNonEmptyString(metaSource.luckyColor)
-                ? metaSource.luckyColor
-                : fallback.meta.luckyColor,
-            energy: isNonEmptyString(metaSource.energy) ? metaSource.energy : fallback.meta.energy,
-            memo: isNonEmptyString(metaSource.memo) ? metaSource.memo : input.userInput || fallback.meta.memo,
-        },
-        printedAt: isNonEmptyString(data.printedAt) ? data.printedAt : formatPrintedAt(),
-        barcodeValue: isNonEmptyString(data.barcodeValue)
-            ? data.barcodeValue
-            : "".concat(issueCode, "-").concat(serialNo.slice(-6)),
-    };
 }
 export function generateReceiptContent(input) {
     return __awaiter(this, void 0, void 0, function () {
@@ -133,7 +80,7 @@ export function generateReceiptContent(input) {
                     return [4 /*yield*/, response.json()];
                 case 3:
                     payload = (_d.sent());
-                    return [2 /*return*/, normalizeReceipt(payload.receipt, requestBody)];
+                    return [2 /*return*/, normalizeReceiptRecord(payload.receipt, requestBody)];
                 case 4:
                     _a = _d.sent();
                     return [2 /*return*/, buildMockReceipt(requestBody.userInput, requestBody.date)];

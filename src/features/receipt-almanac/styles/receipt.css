@@ -290,3 +290,470 @@ textarea {
     width: 100%;
   }
 }
+
+.receipt-canvas-shell {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.receipt-canvas {
+  width: min(100%, 454px);
+  background: none;
+  color: #23211e;
+  border: 1px solid rgba(53, 49, 42, 0.12);
+  box-shadow: 0 26px 70px rgba(35, 31, 28, 0.12);
+  padding: 34px 23px 24px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  flex: 0 0 auto;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.receipt-canvas.is-preview {
+  box-shadow: 0 20px 42px rgba(35, 31, 28, 0.1);
+}
+
+.receipt-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../../../assets/background.png') center top / 100% 100% no-repeat;
+  z-index: 0;
+}
+
+.receipt-canvas::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -11px;
+  height: 11px;
+  background:
+    linear-gradient(-45deg, transparent 75%, rgba(47, 43, 37, 0.14) 75%) 0 0 / 11px 11px,
+    linear-gradient(45deg, transparent 75%, rgba(47, 43, 37, 0.14) 75%) 0 0 / 11px 11px;
+  opacity: 0.55;
+}
+
+.receipt-canvas > * {
+  position: relative;
+  z-index: 1;
+}
+
+.receipt-section {
+  border-top: 2px dashed #4e4b46;
+  padding-top: 18px;
+}
+
+.receipt-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.receipt-top-meta,
+.receipt-date-panel__row,
+.receipt-lunar__header,
+.receipt-inline-label,
+.receipt-meta,
+.receipt-meta__column,
+.receipt-stamps,
+.receipt-footer {
+  display: flex;
+}
+
+.receipt-top-meta,
+.receipt-date-panel__row,
+.receipt-lunar__header {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.receipt-top-meta div {
+  display: grid;
+  gap: 3px;
+}
+
+.receipt-top-meta div:last-child {
+  text-align: right;
+}
+
+.receipt-label,
+.receipt-top-meta strong,
+.receipt-inline-label span,
+.receipt-footer__series,
+.receipt-footer__time,
+.receipt-footer__code {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.receipt-hero {
+  padding-top: 12px;
+  border-top: 0;
+  text-align: center;
+}
+
+.receipt-hero h2,
+.receipt-hero p,
+.receipt-chinese-year,
+.receipt-date-stack p,
+.receipt-judgement h3,
+.receipt-judgement p,
+.receipt-yi-ji__badge,
+.receipt-yi-ji li,
+.receipt-stamps p {
+  margin: 0;
+}
+
+.receipt-hero h2 {
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: clamp(42px, 7vw, 64px);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: #181715;
+}
+
+.receipt-hero p {
+  margin-top: 8px;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 16px;
+  color: #24231f;
+}
+
+.receipt-bilingual-label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.receipt-bilingual-label span:last-child {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+.receipt-chinese-year {
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.receipt-date-stack {
+  margin-top: 8px;
+}
+
+.receipt-date-stack p {
+  font-size: clamp(82px, 19vw, 104px);
+  line-height: 0.86;
+  font-weight: 500;
+  color: #48453f;
+}
+
+.receipt-date-stack__middle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.receipt-date-stack__middle > span:first-child {
+  font-size: clamp(82px, 19vw, 104px);
+  line-height: 0.86;
+  font-weight: 500;
+  color: #48453f;
+}
+
+.receipt-date-stack__middle > span:nth-child(2) {
+  font-size: clamp(82px, 19vw, 104px);
+  line-height: 0.86;
+  font-weight: 500;
+  color: #48453f;
+}
+
+.receipt-date-stack__badges {
+  display: flex;
+  gap: 6px;
+  transform: translateY(10px);
+}
+
+.receipt-date-stack__badges i {
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  border: 1px solid #4a4741;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 18px;
+}
+
+.receipt-date-panel__footer {
+  margin-top: 8px;
+}
+
+.receipt-weekday {
+  display: grid;
+  gap: 2px;
+}
+
+.receipt-weekday span:first-child {
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.receipt-weekday span:last-child {
+  font-size: 14px;
+}
+
+.receipt-lunar__header p {
+  margin: 0;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: clamp(22px, 4vw, 24px);
+  letter-spacing: 0.12em;
+}
+
+.receipt-lunar__primary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 12px;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.receipt-lunar__body {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.receipt-lunar__pillars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.receipt-lunar__gloss {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 30px;
+  font-size: 12px;
+  color: #23211e;
+  letter-spacing: 0.02em;
+}
+
+.receipt-judgement {
+  text-align: center;
+}
+
+.receipt-judgement h3 {
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 26px;
+  font-weight: 400;
+}
+
+.receipt-judgement p {
+  margin-top: 14px;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: clamp(24px, 4.8vw, 26px);
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+}
+
+.receipt-yi-ji {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.receipt-yi-ji__divider,
+.receipt-meta__divider {
+  background: repeating-linear-gradient(180deg, #4a4741 0 4px, transparent 4px 8px);
+}
+
+.receipt-yi-ji__column {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.receipt-yi-ji__badge {
+  width: 47px;
+  height: 47px;
+  border-radius: 50%;
+  border: 1px solid #4a4741;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 26px;
+}
+
+.receipt-yi-ji__column ul {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.receipt-yi-ji li {
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.receipt-meta {
+  gap: 18px;
+}
+
+.receipt-meta__column {
+  min-width: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.receipt-meta__divider {
+  width: 1px;
+}
+
+.receipt-inline-label {
+  align-items: baseline;
+  gap: 8px;
+}
+
+.receipt-inline-label strong {
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.receipt-meta__times p,
+.receipt-meta__text,
+.receipt-energy__row span {
+  margin: 0;
+  font-size: 14px;
+  color: #2c2924;
+}
+
+.receipt-meta__times {
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.receipt-meta__text {
+  margin-top: 6px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.receipt-energy {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.receipt-energy__row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.receipt-energy__track {
+  height: 8px;
+  background: #e1d9cc;
+}
+
+.receipt-energy__fill {
+  height: 100%;
+  background: #4a4944;
+}
+
+.receipt-stamps {
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.receipt-stamps p {
+  font-family: 'IBM Plex Serif', 'Noto Sans SC', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+}
+
+.receipt-footer {
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.receipt-footer__title {
+  margin: 0;
+  font-family: 'IBM Plex Serif', 'Times New Roman', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+}
+
+.receipt-footer__time {
+  margin: 3px 0 0;
+  font-size: 13px;
+}
+
+.receipt-footer__series {
+  margin: 3px 0 0;
+  font-family: 'IBM Plex Serif', 'Times New Roman', serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.23em;
+}
+
+.receipt-barcode {
+  width: min(100%, 326px);
+  height: 34px;
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  margin-top: 12px;
+}
+
+.receipt-barcode span {
+  background: #151412;
+  height: 100%;
+  flex: 0 0 auto;
+}
+
+.receipt-footer__code {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .receipt-canvas {
+    padding: 26px 18px 22px;
+  }
+
+  .receipt-meta {
+    gap: 14px;
+  }
+
+  .receipt-yi-ji {
+    gap: 12px;
+  }
+
+  .receipt-yi-ji li {
+    font-size: 18px;
+  }
+}

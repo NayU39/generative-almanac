@@ -1,23 +1,23 @@
 import { buildIssueCode, buildReceiptDateBlock, buildSerialNo, formatPrintedAt, getTodayIsoDate, } from '../../../lib/date';
 export function buildMockReceipt(userInput, date) {
     if (date === void 0) { date = getTodayIsoDate(); }
-    var compactInput = userInput.trim() || '鎯虫妸浠婂ぉ杩囧緱瀹夐潤涓€鐐广€?';
+    var compactInput = userInput.trim() || '今日宜整理心绪，慢慢推进手头计划。';
     var seed = "".concat(date, ":").concat(compactInput);
     return {
         title: 'RECEIPT ALMANAC',
-        subtitle: 'Quiet Afternoon Edition',
+        subtitle: 'Generated Daily Ticket',
         issueCode: buildIssueCode(date),
         serialNo: buildSerialNo(seed),
         date: buildReceiptDateBlock(date),
-        stateLabel: '瀹夐潤鍗堝悗',
-        headline: '鍐烽潤鎵ц锛屾瘮棰濆鍙戝姏鏇撮噸瑕併€?',
-        yi: ['鏁寸悊妗岄潰', '鍒嗘鎺ㄨ繘', '瀹夐潤鍐欎綔', '纭缁嗚妭'],
-        ji: ['鍙嶅鍒囨崲', '涓存椂鍔犵爜', '绌鸿浆鐒﹁檻', '鎷栧埌娣卞'],
+        stateLabel: '已生成',
+        headline: '今日适合稳步完成计划，也适合把杂念留在纸面之外。',
+        yi: ['整理日程', '推进写作', '安静独处', '按时休息'],
+        ji: ['过度分心', '临时拖延', '深夜熬夜', '重复内耗'],
         meta: {
-            auspiciousTime: '14:10 - 17:40',
-            direction: '鏈濈獥杈瑰潗锛屽厛鍋氭渶瀹夐潤鐨勪竴椤?',
-            luckyColor: '闆剧伆 / 绾哥背 / 娣卞ⅷ',
-            energy: '绋冲畾鍋忎綆锛屽疁鎱㈢儹杩涘叆鐘舵€?',
+            auspiciousTime: '09:00 - 11:30',
+            direction: '朝向安静与清晰感的一侧。',
+            luckyColor: '米白 / 暖灰 / 墨黑',
+            energy: '适合把重要事项拆小，按顺序完成。',
             memo: compactInput,
         },
         printedAt: formatPrintedAt(),

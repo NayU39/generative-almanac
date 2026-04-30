@@ -37,7 +37,7 @@ export function buildReceiptDateBlock(inputDate) {
     });
     var lunarParts = lunarFormatter.formatToParts(date);
     var relatedYear = (_b = (_a = lunarParts.find(function (part) { return part.type === 'relatedYear'; })) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : String(date.getFullYear());
-    var yearName = (_d = (_c = lunarParts.find(function (part) { return part.type === 'yearName'; })) === null || _c === void 0 ? void 0 : _c.value) !== null && _d !== void 0 ? _d : '鐢茶景';
+    var yearName = (_d = (_c = lunarParts.find(function (part) { return part.type === 'yearName'; })) === null || _c === void 0 ? void 0 : _c.value) !== null && _d !== void 0 ? _d : '甲辰';
     var lunarMonth = (_f = (_e = lunarParts.find(function (part) { return part.type === 'month'; })) === null || _e === void 0 ? void 0 : _e.value) !== null && _f !== void 0 ? _f : '';
     var lunarDay = (_h = (_g = lunarParts.find(function (part) { return part.type === 'day'; })) === null || _g === void 0 ? void 0 : _g.value) !== null && _h !== void 0 ? _h : '';
     return {
@@ -48,7 +48,7 @@ export function buildReceiptDateBlock(inputDate) {
         weekdayZh: weekdayZh,
         weekdayEn: weekdayEn,
         lunar: "".concat(lunarMonth).concat(lunarDay),
-        ganzhi: "".concat(yearName, "\u5E74(").concat(relatedYear, ")"),
+        ganzhi: "".concat(yearName, "\u5E74 (").concat(relatedYear, ")"),
     };
 }
 export function buildIssueCode(inputDate) {
