@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+﻿import { useMemo, useRef, useState } from 'react'
 import { buildReceiptDateBlock } from '../../../lib/date'
 import { ReceiptCanvas } from '../components/ReceiptCanvas'
 import { generateReceiptContent } from '../services/generateReceiptContent'
@@ -19,6 +19,12 @@ type GeneratedReceiptEntry = {
 
 type PanelView = 'input' | 'receipt'
 type EntryStatus = 'empty' | 'draft' | 'generated'
+type DateOption = {
+  iso: string
+  monthDay: string
+  weekdayZh: string
+  isGenerated: boolean
+}
 
 function getNowInTimezone(timeZone: string) {
   const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -42,6 +48,12 @@ function formatIsoDate(date: Date) {
   return `${year}-${month}-${day}`
 }
 
+function shiftDate(baseIso: string, offset: number) {
+  const date = new Date(`${baseIso}T12:00:00`)
+  date.setDate(date.getDate() + offset)
+  return formatIsoDate(date)
+}
+
 function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms))
 }
@@ -63,26 +75,26 @@ function getEntryStatus(draft: string, generatedEntry?: GeneratedReceiptEntry): 
 function getStatusCopy(status: EntryStatus) {
   if (status === 'generated') {
     return {
-      label: 'generated',
+      badge: '已记录',
       message: 'RECEIPT READY · 左滑查看',
     }
   }
 
   if (status === 'draft') {
     return {
-      label: 'draft',
-      message: 'DRAFT READY · 已保存输入，尚未生成小票',
+      badge: '可记录',
+      message: 'DRAFT · 已保存输入，尚未生成',
     }
   }
 
   return {
-    label: 'empty',
+    badge: '可记录',
     message: 'EMPTY · 该日期还没有内容',
   }
 }
 
 function getGenerateLabel(status: EntryStatus) {
-  return status === 'generated' ? '更新今日小票' : '生成今日小票'
+  return status === 'generated' ? '生成 / 更新今日小票' : '生成今日小票'
 }
 
 function scrollToPanel(container: HTMLDivElement | null, panel: PanelView) {
@@ -94,6 +106,23 @@ function scrollToPanel(container: HTMLDivElement | null, panel: PanelView) {
   container.scrollTo({ left: nextLeft, behavior: 'smooth' })
 }
 
+function buildDateOptions(
+  centerIso: string,
+  generatedMap: Record<string, GeneratedReceiptEntry>,
+): DateOption[] {
+  return [-2, -1, 0, 1, 2].map((offset) => {
+    const iso = shiftDate(centerIso, offset)
+    const meta = buildReceiptDateBlock(iso)
+
+    return {
+      iso,
+      monthDay: `${meta.month}/${meta.day}`,
+      weekdayZh: meta.weekdayZh.replace('星期', ''),
+      isGenerated: Boolean(generatedMap[iso]),
+    }
+  })
+}
+
 function ArrowIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 48 24">
@@ -103,7 +132,7 @@ function ArrowIcon() {
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="1.5"
+        strokeWidth="1.6"
       />
     </svg>
   )
@@ -118,15 +147,26 @@ function ReceiptGlyph() {
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="1.3"
+        strokeWidth="1.25"
       />
-      <path d="M5 8V4h4M23 4h4v4M5 24v4h4M23 28h4v-4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M5 8V4h4M23 4h4v4M5 24v4h4M23 28h4v-4" fill="none" stroke="currentColor" strokeWidth="1.25" />
     </svg>
   )
 }
 
-function StatusDot({ active }: { active: boolean }) {
-  return <span className={`ra-pagination__dot ${active ? 'is-active' : ''}`} aria-hidden="true" />
+function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 16 16">
+      <path
+        d={direction === 'left' ? 'M10 3.5 5.5 8 10 12.5' : 'M6 3.5 10.5 8 6 12.5'}
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.2"
+      />
+    </svg>
+  )
 }
 
 function ReceiptPreviewPanel({
@@ -144,9 +184,9 @@ function ReceiptPreviewPanel({
     return (
       <section className="ra-receipt-preview ra-receipt-preview--empty">
         <div className="ra-receipt-preview__empty-card">
-          <p className="ra-kicker">RECEIPT PREVIEW</p>
+          <p className="ra-mono-label">RECEIPT PREVIEW</p>
           <h2>当前还没有可预览的小票</h2>
-          <p>{normalizedDraft ? '先生成当前日期内容，再左滑查看正式小票。' : '这个日期还是空白，写下内容后即可生成小票。'}</p>
+          <p>{normalizedDraft ? '先生成当前日期内容，再左滑查看当前日期的小票预览。' : '先写下这一天，再生成当前日期的小票。'}</p>
           <span>{selectedDate}</span>
         </div>
       </section>
@@ -162,10 +202,10 @@ function ReceiptPreviewPanel({
     <section className="ra-receipt-preview">
       <div className="ra-receipt-preview__header">
         <div>
-          <p className="ra-kicker">RECEIPT PREVIEW</p>
+          <p className="ra-mono-label">RECEIPT PREVIEW</p>
           <h2>当前日期小票</h2>
         </div>
-        <span>{entry.generatedAt.slice(0, 10)}</span>
+        <span>{entry.dateIso}</span>
       </div>
 
       <div className="ra-receipt-preview__canvas">
@@ -179,9 +219,9 @@ function GeneratingOverlay() {
   return (
     <div className="ra-overlay" role="status" aria-live="polite">
       <div className="ra-overlay__panel">
-        <p className="ra-kicker">GENERATING</p>
-        <h2>正在整理并生成小票</h2>
-        <p>请稍候，当前日期的小票内容正在写入预览页。</p>
+        <p className="ra-mono-label">GENERATING</p>
+        <h2>正在生成当前日期小票</h2>
+        <p>页面会在生成完成后自动切换到小票预览页。</p>
       </div>
     </div>
   )
@@ -195,12 +235,17 @@ export function ReceiptAlmanacMobileApp() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [activePanel, setActivePanel] = useState<PanelView>('input')
   const panelRef = useRef<HTMLDivElement>(null)
+  const hiddenDateRef = useRef<HTMLInputElement>(null)
 
   const draft = drafts[selectedDate] ?? ''
   const generatedEntry = generatedMap[selectedDate]
   const status = getEntryStatus(draft, generatedEntry)
   const statusCopy = getStatusCopy(status)
   const dateMeta = buildReceiptDateBlock(selectedDate)
+  const dateOptions = useMemo(
+    () => buildDateOptions(selectedDate, generatedMap),
+    [generatedMap, selectedDate],
+  )
   const isReceiptAvailable = status === 'generated'
 
   const handleDraftChange = (value: string) => {
@@ -259,95 +304,128 @@ export function ReceiptAlmanacMobileApp() {
         >
           <section className="ra-panel ra-panel--input">
             <div className="ra-screen">
-              <header className="ra-hero">
-                <div className="ra-hero__topline">
+              <header className="ra-home-header">
+                <div className="ra-home-header__top">
                   <span>RECEIPT ALMANAC</span>
-                  <span className="ra-barcode-mark" aria-hidden="true">
-                    ||||||||||
-                  </span>
+                  <span className="ra-home-header__barcode">||||||||||||</span>
                 </div>
-                <div className="ra-hero__copy">
-                  <p className="ra-kicker">今日黄历小票</p>
+
+                <div className="ra-title-box">
                   <h1>今日黄历小票</h1>
-                  <p>记录此刻，生成你的这一天。</p>
+                </div>
+
+                <div className="ra-subtitle-box">
+                  <p>记录此刻，生成你的一日小票</p>
                 </div>
               </header>
 
-              <section className="ra-date-section">
-                <div className="ra-date-section__header">
-                  <div>
-                    <p className="ra-kicker">DATE</p>
-                    <span className="ra-date-section__type">公历 / SOLAR</span>
-                  </div>
-                  <label className={`ra-status-pill is-${status}`}>
-                    <span className="ra-status-pill__dot" />
-                    {statusCopy.label}
-                  </label>
+              <section className="ra-strip-card">
+                <button className="ra-strip-card__arrow" onClick={() => setSelectedDate(shiftDate(selectedDate, -1))} type="button" aria-label="上一天">
+                  <ChevronIcon direction="left" />
+                </button>
+
+                <div className="ra-strip-card__dates">
+                  {dateOptions.map((option) => {
+                    const isSelected = option.iso === selectedDate
+                    return (
+                      <button
+                        key={option.iso}
+                        className={`ra-mini-date ${isSelected ? 'is-selected' : ''} ${option.isGenerated ? 'is-generated' : 'is-empty'}`}
+                        onClick={() => setSelectedDate(option.iso)}
+                        type="button"
+                      >
+                        <span>{option.monthDay}</span>
+                        <strong>{option.weekdayZh}</strong>
+                        <i />
+                      </button>
+                    )
+                  })}
                 </div>
 
-                <label className="ra-date-display">
-                  <div className="ra-date-display__numbers">
+                <button className="ra-strip-card__arrow" onClick={() => setSelectedDate(shiftDate(selectedDate, 1))} type="button" aria-label="下一天">
+                  <ChevronIcon direction="right" />
+                </button>
+              </section>
+
+              <section className="ra-date-card">
+                <div className="ra-date-card__top">
+                  <div className="ra-date-card__labels">
+                    <span className="ra-mono-label">DATE</span>
+                    <span className="ra-date-card__solar">公历 / SOLAR</span>
+                  </div>
+
+                  <div className="ra-date-card__status">
+                    <span className={`ra-radio-status ${status === 'generated' ? 'is-active' : ''}`}>
+                      <i />
+                      已记录
+                    </span>
+                    <span className={`ra-radio-status ${status !== 'generated' ? 'is-active' : ''}`}>
+                      <i />
+                      可记录
+                    </span>
+                  </div>
+                </div>
+
+                <button className="ra-date-card__main" onClick={() => hiddenDateRef.current?.showPicker?.()} type="button">
+                  <div className="ra-date-card__digits">
                     <span>{dateMeta.year}</span>
                     <em>/</em>
                     <span>{dateMeta.month}</span>
                     <em>/</em>
                     <span>{dateMeta.day}</span>
                   </div>
-                  <div className="ra-date-display__side">
-                    <span className="ra-weekday-capsule">
-                      <strong>{dateMeta.weekdayZh.replace('星期', '周')}</strong>
-                      <small>{dateMeta.weekdayEn.slice(0, 3)}</small>
-                    </span>
-                    <span className="ra-date-display__chevron">⌄</span>
-                  </div>
-                  <input
-                    aria-label="选择日期"
-                    className="ra-date-display__input"
-                    type="date"
-                    value={selectedDate}
-                    onChange={(event) => setSelectedDate(event.target.value)}
-                  />
-                </label>
 
-                <div className="ra-lunar-row" aria-label="农历信息">
-                  <span>LUNAR</span>
+                  <div className="ra-weekday-capsule">
+                    <strong>{dateMeta.weekdayZh.replace('星期', '周')}</strong>
+                    <small>{dateMeta.weekdayEn.slice(0, 3)}</small>
+                  </div>
+                </button>
+
+                <div className="ra-date-card__bottom">
+                  <span className="ra-mono-label">LUNAR</span>
                   <span>{dateMeta.ganzhi}</span>
                   <span>{dateMeta.lunar}</span>
                 </div>
+
+                <input
+                  ref={hiddenDateRef}
+                  aria-label="选择日期"
+                  className="ra-hidden-date-input"
+                  type="date"
+                  value={selectedDate}
+                  onChange={(event) => setSelectedDate(event.target.value)}
+                />
               </section>
 
-              <section className="ra-input-section">
-                <div className="ra-input-section__header">
-                  <div>
-                    <p className="ra-kicker">INPUT FOR THIS DATE</p>
-                    <h2>写下这一天</h2>
-                    <p>随手记录此刻的想法、感受或重要事项。</p>
-                  </div>
-                  <span className="ra-count">
-                    {draft.length} / {MAX_CHARS}
-                  </span>
-                </div>
+              <div className="ra-divider" />
 
-                <label className="ra-textarea-shell">
-                  <textarea
-                    value={draft}
-                    onChange={(event) => handleDraftChange(event.target.value.slice(0, MAX_CHARS))}
-                    placeholder="写下这一天。"
-                    rows={8}
-                  />
-                </label>
+              <section className="ra-input-card">
+                <div className="ra-input-card__head">
+                  <div>
+                    <p className="ra-mono-label">INPUT FOR THIS DATE</p>
+                    <h2>写下这一天</h2>
+                    <p>随心记录此刻的想法、感受或重要之事。</p>
+                  </div>
+                  <span className="ra-input-card__count">{draft.length} / {MAX_CHARS}</span>
+                </div>
+              </section>
+
+              <section className="ra-editor-card">
+                <textarea
+                  value={draft}
+                  onChange={(event) => handleDraftChange(event.target.value.slice(0, MAX_CHARS))}
+                  placeholder="写下这一天。"
+                  rows={6}
+                />
               </section>
 
               <section className="ra-status-line" aria-label="当前日期状态">
-                <span>{statusCopy.message}</span>
+                <span className="ra-status-line__corner ra-status-line__corner--left" aria-hidden="true" />
+                <p>{statusCopy.message}</p>
+                <span className="ra-status-line__corner ra-status-line__corner--right" aria-hidden="true" />
               </section>
 
-              <button
-                className="ra-generate-button"
-                onClick={handleGenerate}
-                type="button"
-                disabled={isGenerating || !draft.trim()}
-              >
+              <button className="ra-generate-button" onClick={handleGenerate} type="button" disabled={isGenerating || !draft.trim()}>
                 <span className="ra-generate-button__icon">
                   <ReceiptGlyph />
                 </span>
@@ -371,7 +449,7 @@ export function ReceiptAlmanacMobileApp() {
                 >
                   INPUT
                 </button>
-                <StatusDot active={activePanel === 'input'} />
+                <span className={`ra-pagination__dot ${activePanel === 'input' ? 'is-active' : ''}`} aria-hidden="true" />
                 <button
                   className={`ra-pagination__item ${activePanel === 'receipt' ? 'is-active' : ''}`}
                   onClick={() => {
