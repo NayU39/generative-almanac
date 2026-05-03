@@ -1,3 +1,14 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52,19 +63,19 @@ function getApiUrl() {
 }
 export function generateReceiptContent(input) {
     return __awaiter(this, void 0, void 0, function () {
-        var requestBody, response, payload, _a;
-        var _b, _c;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var requestBody, response, payload, error_1, fallback;
+        var _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
                     requestBody = {
                         userInput: input.userInput,
-                        date: (_b = input.date) !== null && _b !== void 0 ? _b : getTodayIsoDate(),
-                        timezone: (_c = input.timezone) !== null && _c !== void 0 ? _c : 'Asia/Shanghai',
+                        date: (_a = input.date) !== null && _a !== void 0 ? _a : getTodayIsoDate(),
+                        timezone: (_b = input.timezone) !== null && _b !== void 0 ? _b : 'Asia/Shanghai',
                     };
-                    _d.label = 1;
+                    _c.label = 1;
                 case 1:
-                    _d.trys.push([1, 4, , 5]);
+                    _c.trys.push([1, 4, , 5]);
                     return [4 /*yield*/, fetch(getApiUrl(), {
                             method: 'POST',
                             headers: {
@@ -73,17 +84,20 @@ export function generateReceiptContent(input) {
                             body: JSON.stringify(requestBody),
                         })];
                 case 2:
-                    response = _d.sent();
+                    response = _c.sent();
                     if (!response.ok) {
                         throw new Error('Receipt generation request failed.');
                     }
                     return [4 /*yield*/, response.json()];
                 case 3:
-                    payload = (_d.sent());
-                    return [2 /*return*/, normalizeReceiptRecord(payload.receipt, requestBody)];
+                    payload = (_c.sent());
+                    return [2 /*return*/, normalizeReceiptRecord(__assign(__assign({}, (typeof payload.receipt === 'object' && payload.receipt !== null
+                            ? payload.receipt
+                            : {})), { source: payload.source, warning: payload.warning }), requestBody)];
                 case 4:
-                    _a = _d.sent();
-                    return [2 /*return*/, buildMockReceipt(requestBody.userInput, requestBody.date)];
+                    error_1 = _c.sent();
+                    fallback = buildMockReceipt(requestBody.userInput, requestBody.date);
+                    return [2 /*return*/, __assign(__assign({}, fallback), { source: 'mock', warning: error_1 instanceof Error ? error_1.message : 'Receipt generation failed, fallback to mock.' })];
                 case 5: return [2 /*return*/];
             }
         });

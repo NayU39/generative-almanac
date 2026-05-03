@@ -1,4 +1,4 @@
-import type { ReceiptAlmanac } from '../src/features/receipt-almanac/types/receipt'
+import type { ReceiptAiPayload } from '../src/features/receipt-almanac/types/receipt'
 
 type DeepSeekConfig = {
   apiKey: string
@@ -11,30 +11,40 @@ type GenerateRequest = {
   timezone: string
 }
 
-function buildPrompt(input: GenerateRequest) {
+const SYSTEM_PROMPT = [
+  'You generate copy for a receipt-style daily almanac.',
+  'Return JSON only. Do not return Markdown, code fences, notes, or explanations.',
+  'The JSON must contain exactly these keys: summary, headline, yi, ji, auspiciousTime, direction, luckyColor.',
+  'Write all values in Simplified Chinese.',
+  'summary: 28-36 Chinese characters, one sentence, calm and concrete.',
+  'headline: 4-8 Chinese characters, suitable for the main judgement line.',
+  'yi: array of exactly 4 items, each item 4-6 Chinese characters.',
+  'ji: array of exactly 4 items, each item 4-6 Chinese characters.',
+  'auspiciousTime: time range string like 09:00 - 11:30.',
+  'direction: 16-24 Chinese characters, short phrase or sentence.',
+  'luckyColor: 2-3 color words separated by " / ".',
+  'Keep the content closely tied to the user input and date context.',
+  'Avoid mystic filler, vague blessings, and generic motivational slogans.',
+].join('\n')
+
+function buildUserPrompt(input: GenerateRequest) {
   return [
-    '浣犳槸涓€涓€淩eceipt Almanac / 榛勫巻灏忕エ鈥濈殑缁撴瀯鍖栧唴瀹圭敓鎴愬櫒銆?',
-    '璇锋牴鎹敤鎴疯緭鍏ョ敓鎴愪竴寮犵湡瀹?receipt 椋庢牸灏忕エ鎵€闇€鐨?JSON銆?',
-    '涓嶈杈撳嚭 markdown锛屼笉瑕佽В閲婏紝鍙緭鍑?JSON銆?',
-    '鍐呭瑕佸厠鍒躲€佺幇浠ｃ€佸彲鎵ц锛屼笉瑕佹槦绌恒€佹按澧ㄣ€佺巹瀛﹀璇濄€?',
-    '瀛楁蹇呴』鍖呭惈锛歵itle, subtitle, issueCode, serialNo, date, stateLabel, headline, yi, ji, meta, printedAt, barcodeValue銆?',
-    'yi 鍜?ji 鍚勮緭鍑?3 鍒?5 鏉°€?',
-    'meta 閲屽繀椤诲寘鍚?auspiciousTime, direction, luckyColor, energy, memo銆?',
-    `鏃ユ湡: ${input.date}`,
-    `鏃跺尯: ${input.timezone}`,
-    `鐢ㄦ埛杈撳叆: ${input.userInput}`,
+    `日期: ${input.date}`,
+    `时区: ${input.timezone}`,
+    `用户输入: ${input.userInput}`,
+    '请基于以上信息生成当日小票内容。',
   ].join('\n')
 }
 
 function parseJsonContent(content: string) {
-  const normalized = content.trim().replace(/^```json/, '').replace(/^```/, '').replace(/```$/, '')
-  return JSON.parse(normalized) as ReceiptAlmanac
+  const normalized = content.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '')
+  return JSON.parse(normalized) as ReceiptAiPayload
 }
 
 export async function generateReceiptWithDeepSeek(
   input: GenerateRequest,
   config: DeepSeekConfig,
-): Promise<ReceiptAlmanac> {
+): Promise<ReceiptAiPayload> {
   const response = await fetch('https://api.deepseek.com/chat/completions', {
     method: 'POST',
     headers: {
@@ -43,8 +53,11 @@ export async function generateReceiptWithDeepSeek(
     },
     body: JSON.stringify({
       model: config.model,
-      messages: [{ role: 'user', content: buildPrompt(input) }],
-      temperature: 0.7,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: buildUserPrompt(input) },
+      ],
+      temperature: 0.8,
       response_format: { type: 'json_object' },
     }),
   })

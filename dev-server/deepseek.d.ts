@@ -1,4 +1,4 @@
-import type { ReceiptAlmanac } from '../src/features/receipt-almanac/types/receipt';
+import type { ReceiptAiPayload } from '../src/features/receipt-almanac/types/receipt';
 type DeepSeekConfig = {
     apiKey: string;
     model: string;
@@ -8,5 +8,5 @@ type GenerateRequest = {
     date: string;
     timezone: string;
 };
-export declare function generateReceiptWithDeepSeek(input: GenerateRequest, config: DeepSeekConfig): Promise<ReceiptAlmanac>;
+export declare function generateReceiptWithDeepSeek(input: GenerateRequest, config: DeepSeekConfig): Promise<ReceiptAiPayload>;
 export {};

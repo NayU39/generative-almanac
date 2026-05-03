@@ -34,22 +34,31 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-function buildPrompt(input) {
+var SYSTEM_PROMPT = [
+    'You generate copy for a receipt-style daily almanac.',
+    'Return JSON only. Do not return Markdown, code fences, notes, or explanations.',
+    'The JSON must contain exactly these keys: summary, headline, yi, ji, auspiciousTime, direction, luckyColor.',
+    'Write all values in Simplified Chinese.',
+    'summary: 28-36 Chinese characters, one sentence, calm and concrete.',
+    'headline: 4-8 Chinese characters, suitable for the main judgement line.',
+    'yi: array of exactly 4 items, each item 4-6 Chinese characters.',
+    'ji: array of exactly 4 items, each item 4-6 Chinese characters.',
+    'auspiciousTime: time range string like 09:00 - 11:30.',
+    'direction: 16-24 Chinese characters, short phrase or sentence.',
+    'luckyColor: 2-3 color words separated by " / ".',
+    'Keep the content closely tied to the user input and date context.',
+    'Avoid mystic filler, vague blessings, and generic motivational slogans.',
+].join('\n');
+function buildUserPrompt(input) {
     return [
-        '浣犳槸涓€涓€淩eceipt Almanac / 榛勫巻灏忕エ鈥濈殑缁撴瀯鍖栧唴瀹圭敓鎴愬櫒銆?',
-        '璇锋牴鎹敤鎴疯緭鍏ョ敓鎴愪竴寮犵湡瀹?receipt 椋庢牸灏忕エ鎵€闇€鐨?JSON銆?',
-        '涓嶈杈撳嚭 markdown锛屼笉瑕佽В閲婏紝鍙緭鍑?JSON銆?',
-        '鍐呭瑕佸厠鍒躲€佺幇浠ｃ€佸彲鎵ц锛屼笉瑕佹槦绌恒€佹按澧ㄣ€佺巹瀛﹀璇濄€?',
-        '瀛楁蹇呴』鍖呭惈锛歵itle, subtitle, issueCode, serialNo, date, stateLabel, headline, yi, ji, meta, printedAt, barcodeValue銆?',
-        'yi 鍜?ji 鍚勮緭鍑?3 鍒?5 鏉°€?',
-        'meta 閲屽繀椤诲寘鍚?auspiciousTime, direction, luckyColor, energy, memo銆?',
-        "\u93C3\u30E6\u6E61: ".concat(input.date),
-        "\u93C3\u8DFA\u5C2F: ".concat(input.timezone),
-        "\u9422\u3126\u57DB\u6748\u64B3\u53C6: ".concat(input.userInput),
+        "\u65E5\u671F: ".concat(input.date),
+        "\u65F6\u533A: ".concat(input.timezone),
+        "\u7528\u6237\u8F93\u5165: ".concat(input.userInput),
+        '请基于以上信息生成当日小票内容。',
     ].join('\n');
 }
 function parseJsonContent(content) {
-    var normalized = content.trim().replace(/^```json/, '').replace(/^```/, '').replace(/```$/, '');
+    var normalized = content.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '');
     return JSON.parse(normalized);
 }
 export function generateReceiptWithDeepSeek(input, config) {
@@ -66,8 +75,11 @@ export function generateReceiptWithDeepSeek(input, config) {
                         },
                         body: JSON.stringify({
                             model: config.model,
-                            messages: [{ role: 'user', content: buildPrompt(input) }],
-                            temperature: 0.7,
+                            messages: [
+                                { role: 'system', content: SYSTEM_PROMPT },
+                                { role: 'user', content: buildUserPrompt(input) },
+                            ],
+                            temperature: 0.8,
                             response_format: { type: 'json_object' },
                         }),
                     })];

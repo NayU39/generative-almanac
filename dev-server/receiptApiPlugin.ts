@@ -56,16 +56,26 @@ async function handleGenerateRequest(
       writeJson(res, 200, {
         receipt: buildMockReceipt(input.userInput, input.date),
         source: 'mock',
+        warning: 'DEEPSEEK_API_KEY is missing, fallback to mock.',
       })
       return
     }
 
-    const receipt = await generateReceiptWithDeepSeek(input, {
-      apiKey: options.apiKey,
-      model: options.model,
-    })
+    try {
+      const receipt = await generateReceiptWithDeepSeek(input, {
+        apiKey: options.apiKey,
+        model: options.model,
+      })
 
-    writeJson(res, 200, { receipt, source: 'ai' })
+      writeJson(res, 200, { receipt, source: 'ai' })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown AI generation error.'
+      writeJson(res, 200, {
+        receipt: buildMockReceipt(input.userInput, input.date),
+        source: 'mock',
+        warning: message,
+      })
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown server error.'
     writeJson(res, 500, { error: message })

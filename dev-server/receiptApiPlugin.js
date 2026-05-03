@@ -107,11 +107,11 @@ function normalizeRequest(raw) {
 }
 function handleGenerateRequest(req, res, options) {
     return __awaiter(this, void 0, void 0, function () {
-        var rawBody, input, receipt, error_1, message;
+        var rawBody, input, receipt, error_1, message, error_2, message;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 3, , 4]);
+                    _a.trys.push([0, 6, , 7]);
                     return [4 /*yield*/, readBody(req)];
                 case 1:
                     rawBody = _a.sent();
@@ -120,23 +120,37 @@ function handleGenerateRequest(req, res, options) {
                         writeJson(res, 200, {
                             receipt: buildMockReceipt(input.userInput, input.date),
                             source: 'mock',
+                            warning: 'DEEPSEEK_API_KEY is missing, fallback to mock.',
                         });
                         return [2 /*return*/];
                     }
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, , 5]);
                     return [4 /*yield*/, generateReceiptWithDeepSeek(input, {
                             apiKey: options.apiKey,
                             model: options.model,
                         })];
-                case 2:
+                case 3:
                     receipt = _a.sent();
                     writeJson(res, 200, { receipt: receipt, source: 'ai' });
-                    return [3 /*break*/, 4];
-                case 3:
+                    return [3 /*break*/, 5];
+                case 4:
                     error_1 = _a.sent();
-                    message = error_1 instanceof Error ? error_1.message : 'Unknown server error.';
+                    message = error_1 instanceof Error ? error_1.message : 'Unknown AI generation error.';
+                    writeJson(res, 200, {
+                        receipt: buildMockReceipt(input.userInput, input.date),
+                        source: 'mock',
+                        warning: message,
+                    });
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    error_2 = _a.sent();
+                    message = error_2 instanceof Error ? error_2.message : 'Unknown server error.';
                     writeJson(res, 500, { error: message });
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });

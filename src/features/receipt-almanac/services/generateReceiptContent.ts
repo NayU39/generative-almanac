@@ -40,9 +40,23 @@ export async function generateReceiptContent(input: GenerateReceiptParams): Prom
       throw new Error('Receipt generation request failed.')
     }
 
-    const payload = (await response.json()) as { receipt?: unknown }
-    return normalizeReceiptRecord(payload.receipt, requestBody)
-  } catch {
-    return buildMockReceipt(requestBody.userInput, requestBody.date)
+    const payload = (await response.json()) as { receipt?: unknown; source?: unknown; warning?: unknown }
+    return normalizeReceiptRecord(
+      {
+        ...(typeof payload.receipt === 'object' && payload.receipt !== null
+          ? (payload.receipt as Record<string, unknown>)
+          : {}),
+        source: payload.source,
+        warning: payload.warning,
+      },
+      requestBody,
+    )
+  } catch (error) {
+    const fallback = buildMockReceipt(requestBody.userInput, requestBody.date)
+    return {
+      ...fallback,
+      source: 'mock',
+      warning: error instanceof Error ? error.message : 'Receipt generation failed, fallback to mock.',
+    }
   }
 }

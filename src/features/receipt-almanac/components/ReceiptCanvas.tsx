@@ -66,15 +66,6 @@ function toChineseYear(year: string) {
     .join('')
 }
 
-function splitMemoLines(memo: string, fallback: string[]) {
-  const lines = memo
-    .split(/[\uFF0C\u3002\uFF1B;\u3001\n]/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-
-  return lines.length >= 2 ? lines.slice(0, 2) : fallback
-}
-
 function splitTimeLines(value: string) {
   const normalized = value
     .split(/[\uFF0C,\u3001\n/]/)
@@ -213,10 +204,6 @@ function buildViewModel(source: ReceiptAlmanac) {
   return {
     receipt,
     chineseYear: toChineseYear(receipt.date.year),
-    memoLines: splitMemoLines(receipt.meta.memo, [
-      `\u9002\u5408${receipt.yi[0] ?? '\u5b89\u9759\u5438\u6536'}`,
-      `\u4e0d\u5b9c${receipt.ji[0] ?? '\u8fc7\u5ea6\u6253\u65ad'}`,
-    ]),
     lunarDetails: buildLunarDetails(dateIso, receipt.date.lunar),
     timeLines: splitTimeLines(receipt.meta.auspiciousTime),
     printedAt: formatPrintedAt(receipt.printedAt),
@@ -246,7 +233,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
 
         <section className="receipt-hero receipt-section">
           <h2>{'\u4eca\u65e5'}</h2>
-          <p>{view.receipt.headline}</p>
+          <p>{view.receipt.summary}</p>
         </section>
 
         <section className="receipt-date-panel receipt-section">
@@ -305,9 +292,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
 
         <section className="receipt-judgement receipt-section">
           <h3>{'\u00b7 \u4eca\u65e5\u5224\u65ad \u00b7'}</h3>
-          {view.memoLines.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
+          <p>{view.receipt.headline}</p>
         </section>
 
         <section className="receipt-yi-ji receipt-section">

@@ -6,23 +6,34 @@ import {
   getTodayIsoDate,
 } from '../../../lib/date'
 import { buildMockReceipt } from '../data/mockReceipt'
-import type { GenerateReceiptParams, ReceiptAlmanac } from '../types/receipt'
+import type { GenerateReceiptParams, ReceiptAiPayload, ReceiptAlmanac } from '../types/receipt'
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
 
-function asList(value: unknown, fallback: string[]) {
-  if (!Array.isArray(value)) {
-    return fallback
+function normalizeSentence(value: unknown, fallback: string) {
+  return isNonEmptyString(value) ? value.trim() : fallback
+}
+
+function asFixedList(value: unknown, fallback: string[], size = 4) {
+  const normalized = Array.isArray(value)
+    ? value
+        .map((item) => (typeof item === 'string' ? item.trim() : ''))
+        .filter(Boolean)
+    : []
+
+  const next = normalized.slice(0, size)
+
+  for (const item of fallback) {
+    if (next.length >= size) {
+      break
+    }
+
+    next.push(item)
   }
 
-  const normalized = value
-    .map((item) => (typeof item === 'string' ? item.trim() : ''))
-    .filter(Boolean)
-    .slice(0, 5)
-
-  return normalized.length > 0 ? normalized : fallback
+  return next.slice(0, size)
 }
 
 export function normalizeReceiptRecord(
@@ -36,7 +47,18 @@ export function normalizeReceiptRecord(
     return fallback
   }
 
-  const data = raw as Record<string, unknown>
+  const data = raw as ReceiptAiPayload & {
+    title?: unknown
+    subtitle?: unknown
+    stateLabel?: unknown
+    issueCode?: unknown
+    serialNo?: unknown
+    meta?: unknown
+    printedAt?: unknown
+    barcodeValue?: unknown
+    source?: unknown
+    warning?: unknown
+  }
   const normalizedDate = buildReceiptDateBlock(date)
   const issueCode = isNonEmptyString(data.issueCode) ? data.issueCode : buildIssueCode(date)
   const serialNo = isNonEmptyString(data.serialNo)
@@ -52,17 +74,20 @@ export function normalizeReceiptRecord(
     serialNo,
     date: normalizedDate,
     stateLabel: isNonEmptyString(data.stateLabel) ? data.stateLabel : fallback.stateLabel,
-    headline: isNonEmptyString(data.headline) ? data.headline : fallback.headline,
-    yi: asList(data.yi, fallback.yi),
-    ji: asList(data.ji, fallback.ji),
+    summary: normalizeSentence(data.summary, fallback.summary),
+    headline: normalizeSentence(data.headline, fallback.headline),
+    yi: asFixedList(data.yi, fallback.yi),
+    ji: asFixedList(data.ji, fallback.ji),
     meta: {
       auspiciousTime: isNonEmptyString(metaSource.auspiciousTime)
         ? metaSource.auspiciousTime
-        : fallback.meta.auspiciousTime,
-      direction: isNonEmptyString(metaSource.direction) ? metaSource.direction : fallback.meta.direction,
+        : normalizeSentence(data.auspiciousTime, fallback.meta.auspiciousTime),
+      direction: isNonEmptyString(metaSource.direction)
+        ? metaSource.direction
+        : normalizeSentence(data.direction, fallback.meta.direction),
       luckyColor: isNonEmptyString(metaSource.luckyColor)
         ? metaSource.luckyColor
-        : fallback.meta.luckyColor,
+        : normalizeSentence(data.luckyColor, fallback.meta.luckyColor),
       energy: isNonEmptyString(metaSource.energy) ? metaSource.energy : fallback.meta.energy,
       memo: isNonEmptyString(metaSource.memo) ? metaSource.memo : input.userInput || fallback.meta.memo,
     },
@@ -70,5 +95,7 @@ export function normalizeReceiptRecord(
     barcodeValue: isNonEmptyString(data.barcodeValue)
       ? data.barcodeValue
       : `${issueCode}-${serialNo.slice(-6)}`,
+    source: data.source === 'mock' ? 'mock' : 'ai',
+    warning: isNonEmptyString(data.warning) ? data.warning : undefined,
   }
 }
