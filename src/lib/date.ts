@@ -43,7 +43,7 @@ export function buildReceiptDateBlock(inputDate: string): ReceiptDateBlock {
   const lunarParts = lunarFormatter.formatToParts(date) as Array<{ type: string; value: string }>
   const relatedYear =
     lunarParts.find((part) => part.type === 'relatedYear')?.value ?? String(date.getFullYear())
-  const yearName = lunarParts.find((part) => part.type === 'yearName')?.value ?? '甲辰'
+  const yearName = lunarParts.find((part) => part.type === 'yearName')?.value ?? '\u7532\u8fb0'
   const lunarMonth = lunarParts.find((part) => part.type === 'month')?.value ?? ''
   const lunarDay = lunarParts.find((part) => part.type === 'day')?.value ?? ''
 
@@ -55,7 +55,7 @@ export function buildReceiptDateBlock(inputDate: string): ReceiptDateBlock {
     weekdayZh,
     weekdayEn,
     lunar: `${lunarMonth}${lunarDay}`,
-    ganzhi: `${yearName}年 (${relatedYear})`,
+    ganzhi: `${yearName}\u5e74 (${relatedYear})`,
   }
 }
 

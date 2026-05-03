@@ -14,34 +14,45 @@ type LunarDetails = {
   pillarsEn: [string, string, string]
 }
 
-const CHINESE_DIGITS = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九']
-const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
-const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
+const CHINESE_DIGITS = [
+  '\u3007',
+  '\u4e00',
+  '\u4e8c',
+  '\u4e09',
+  '\u56db',
+  '\u4e94',
+  '\u516d',
+  '\u4e03',
+  '\u516b',
+  '\u4e5d',
+]
+const STEMS = ['\u7532', '\u4e59', '\u4e19', '\u4e01', '\u620a', '\u5df1', '\u5e9a', '\u8f9b', '\u58ec', '\u7678']
+const BRANCHES = ['\u5b50', '\u4e11', '\u5bc5', '\u536f', '\u8fb0', '\u5df3', '\u5348', '\u672a', '\u7533', '\u9149', '\u620c', '\u4ea5']
 const STEM_PINYIN: Record<string, string> = {
-  甲: 'JIA',
-  乙: 'YI',
-  丙: 'BING',
-  丁: 'DING',
-  戊: 'WU',
-  己: 'JI',
-  庚: 'GENG',
-  辛: 'XIN',
-  壬: 'REN',
-  癸: 'GUI',
+  '\u7532': 'JIA',
+  '\u4e59': 'YI',
+  '\u4e19': 'BING',
+  '\u4e01': 'DING',
+  '\u620a': 'WU',
+  '\u5df1': 'JI',
+  '\u5e9a': 'GENG',
+  '\u8f9b': 'XIN',
+  '\u58ec': 'REN',
+  '\u7678': 'GUI',
 }
 const BRANCH_PINYIN: Record<string, string> = {
-  子: 'ZI',
-  丑: 'CHOU',
-  寅: 'YIN',
-  卯: 'MAO',
-  辰: 'CHEN',
-  巳: 'SI',
-  午: 'WU',
-  未: 'WEI',
-  申: 'SHEN',
-  酉: 'YOU',
-  戌: 'XU',
-  亥: 'HAI',
+  '\u5b50': 'ZI',
+  '\u4e11': 'CHOU',
+  '\u5bc5': 'YIN',
+  '\u536f': 'MAO',
+  '\u8fb0': 'CHEN',
+  '\u5df3': 'SI',
+  '\u5348': 'WU',
+  '\u672a': 'WEI',
+  '\u7533': 'SHEN',
+  '\u9149': 'YOU',
+  '\u620c': 'XU',
+  '\u4ea5': 'HAI',
 }
 const BARCODE_PATTERN = [
   4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2,
@@ -57,7 +68,7 @@ function toChineseYear(year: string) {
 
 function splitMemoLines(memo: string, fallback: string[]) {
   const lines = memo
-    .split(/[，。；;、\n]/)
+    .split(/[\uFF0C\u3002\uFF1B;\u3001\n]/)
     .map((line) => line.trim())
     .filter(Boolean)
 
@@ -66,7 +77,7 @@ function splitMemoLines(memo: string, fallback: string[]) {
 
 function splitTimeLines(value: string) {
   const normalized = value
-    .split(/[，,、\n/]/)
+    .split(/[\uFF0C,\u3001\n/]/)
     .map((item) => item.trim())
     .filter(Boolean)
 
@@ -94,29 +105,29 @@ function buildEnergyBars(seed: string) {
   const stable = 100 - inward
 
   return [
-    { label: '内敛', value: inward },
-    { label: '稳定', value: stable },
+    { label: '\u5185\u655b', value: inward },
+    { label: '\u7a33\u5b9a', value: stable },
   ]
 }
 
 function parseLunarMonthNumber(monthText: string) {
-  const normalized = monthText.replace('闰', '').replace('月', '')
+  const normalized = monthText.replace('\u95f0', '').replace('\u6708', '')
   const monthMap: Record<string, number> = {
-    正: 1,
-    一: 1,
-    二: 2,
-    三: 3,
-    四: 4,
-    五: 5,
-    六: 6,
-    七: 7,
-    八: 8,
-    九: 9,
-    十: 10,
-    十一: 11,
-    冬: 11,
-    十二: 12,
-    腊: 12,
+    '\u6b63': 1,
+    '\u4e00': 1,
+    '\u4e8c': 2,
+    '\u4e09': 3,
+    '\u56db': 4,
+    '\u4e94': 5,
+    '\u516d': 6,
+    '\u4e03': 7,
+    '\u516b': 8,
+    '\u4e5d': 9,
+    '\u5341': 10,
+    '\u5341\u4e00': 11,
+    '\u51ac': 11,
+    '\u5341\u4e8c': 12,
+    '\u814a': 12,
   }
 
   return monthMap[normalized] ?? 1
@@ -142,7 +153,7 @@ function getJulianDayNumber(date: Date) {
 }
 
 function toPinyinGanzhi(token: string) {
-  const chars = token.replace(/[年月日]/g, '').split('')
+  const chars = token.replace(/[\u5e74\u6708\u65e5]/g, '').split('')
   if (chars.length < 2) {
     return token.toUpperCase()
   }
@@ -159,10 +170,12 @@ function buildLunarDetails(inputDate: string, fallbackDisplay: string): LunarDet
     day: 'numeric',
   })
   const parts = formatter.formatToParts(date) as Array<{ type: string; value: string }>
-  const yearName = parts.find((part) => part.type === 'yearName')?.value ?? '乙巳'
-  const lunarMonth = parts.find((part) => part.type === 'month')?.value ?? (fallbackDisplay.slice(0, 2) || '二月')
-  const lunarDay = parts.find((part) => part.type === 'day')?.value ?? (fallbackDisplay.slice(2) || '十四')
-  const yearStemIndex = STEMS.indexOf(yearName[0] ?? '乙')
+  const fallbackMonth = fallbackDisplay.slice(0, 2) || '\u4e8c\u6708'
+  const fallbackDay = fallbackDisplay.slice(2) || '\u5341\u56db'
+  const yearName = parts.find((part) => part.type === 'yearName')?.value ?? '\u4e59\u5df3'
+  const lunarMonth = parts.find((part) => part.type === 'month')?.value ?? fallbackMonth
+  const lunarDay = parts.find((part) => part.type === 'day')?.value ?? fallbackDay
+  const yearStemIndex = STEMS.indexOf(yearName[0] ?? '\u4e59')
   const monthNumber = parseLunarMonthNumber(lunarMonth)
   const firstMonthStem = ((yearStemIndex % 5) * 2 + 2) % 10
   const monthStem = STEMS[(firstMonthStem + monthNumber - 1) % 10]
@@ -171,9 +184,9 @@ function buildLunarDetails(inputDate: string, fallbackDisplay: string): LunarDet
   const dayStem = STEMS[dayIndex % 10]
   const dayBranch = BRANCHES[dayIndex % 12]
   const pillarsZh: [string, string, string] = [
-    `${yearName}年`,
-    `${monthStem}${monthBranch}月`,
-    `${dayStem}${dayBranch}日`,
+    `${yearName}\u5e74`,
+    `${monthStem}${monthBranch}\u6708`,
+    `${dayStem}${dayBranch}\u65e5`,
   ]
 
   return {
@@ -201,8 +214,8 @@ function buildViewModel(source: ReceiptAlmanac) {
     receipt,
     chineseYear: toChineseYear(receipt.date.year),
     memoLines: splitMemoLines(receipt.meta.memo, [
-      `适合${receipt.yi[0] ?? '安静吸收'}`,
-      `不宜${receipt.ji[0] ?? '过度打断'}`,
+      `\u9002\u5408${receipt.yi[0] ?? '\u5b89\u9759\u5438\u6536'}`,
+      `\u4e0d\u5b9c${receipt.ji[0] ?? '\u8fc7\u5ea6\u6253\u65ad'}`,
     ]),
     lunarDetails: buildLunarDetails(dateIso, receipt.date.lunar),
     timeLines: splitTimeLines(receipt.meta.auspiciousTime),
@@ -232,14 +245,14 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
         </header>
 
         <section className="receipt-hero receipt-section">
-          <h2>今日</h2>
+          <h2>{'\u4eca\u65e5'}</h2>
           <p>{view.receipt.headline}</p>
         </section>
 
         <section className="receipt-date-panel receipt-section">
           <div className="receipt-date-panel__row">
             <div className="receipt-bilingual-label">
-              <span>公历</span>
+              <span>{'\u516c\u5386'}</span>
               <span>SOLAR CALANDER</span>
             </div>
             <p className="receipt-chinese-year">{view.chineseYear}</p>
@@ -251,9 +264,9 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
               <span>-</span>
               <span>{view.receipt.date.month}</span>
               <div className="receipt-date-stack__badges">
-                <i>年</i>
-                <i>月</i>
-                <i>日</i>
+                <i>{'\u5e74'}</i>
+                <i>{'\u6708'}</i>
+                <i>{'\u65e5'}</i>
               </div>
             </div>
             <p>{view.receipt.date.day}</p>
@@ -270,7 +283,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
         <section className="receipt-lunar receipt-section">
           <div className="receipt-lunar__header">
             <div className="receipt-bilingual-label">
-              <span>农历</span>
+              <span>{'\u519c\u5386'}</span>
               <span>LUNAR CALANDER</span>
             </div>
             <p>{view.lunarDetails.display}</p>
@@ -291,7 +304,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
         </section>
 
         <section className="receipt-judgement receipt-section">
-          <h3>· 今日判断 ·</h3>
+          <h3>{'\u00b7 \u4eca\u65e5\u5224\u65ad \u00b7'}</h3>
           {view.memoLines.map((line) => (
             <p key={line}>{line}</p>
           ))}
@@ -299,7 +312,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
 
         <section className="receipt-yi-ji receipt-section">
           <div className="receipt-yi-ji__column">
-            <div className="receipt-yi-ji__badge">宜</div>
+            <div className="receipt-yi-ji__badge">{'\u5b9c'}</div>
             <ul>
               {view.receipt.yi.map((item) => (
                 <li key={`yi-${item}`}>{item}</li>
@@ -308,7 +321,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
           </div>
           <div className="receipt-yi-ji__divider" />
           <div className="receipt-yi-ji__column">
-            <div className="receipt-yi-ji__badge">忌</div>
+            <div className="receipt-yi-ji__badge">{'\u5fcc'}</div>
             <ul>
               {view.receipt.ji.map((item) => (
                 <li key={`ji-${item}`}>{item}</li>
@@ -321,7 +334,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
           <div className="receipt-meta__column">
             <div className="receipt-meta__group">
               <div className="receipt-inline-label">
-                <strong>吉时</strong>
+                <strong>{'\u5409\u65f6'}</strong>
                 <span>AUSPICCIOUS TIME</span>
               </div>
               <div className="receipt-meta__times">
@@ -333,7 +346,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
 
             <div className="receipt-meta__group">
               <div className="receipt-inline-label">
-                <strong>方位</strong>
+                <strong>{'\u65b9\u4f4d'}</strong>
                 <span>DIRECTION</span>
               </div>
               <p className="receipt-meta__text">{view.receipt.meta.direction}</p>
@@ -345,7 +358,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
           <div className="receipt-meta__column">
             <div className="receipt-meta__group">
               <div className="receipt-inline-label">
-                <strong>今日能量</strong>
+                <strong>{'\u4eca\u65e5\u80fd\u91cf'}</strong>
                 <span>ENERGY INDEX</span>
               </div>
               <div className="receipt-energy">
@@ -362,7 +375,7 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
 
             <div className="receipt-meta__group">
               <div className="receipt-inline-label">
-                <strong>幸运色</strong>
+                <strong>{'\u5e78\u8fd0\u8272'}</strong>
                 <span>LUCKY COLOR</span>
               </div>
               <p className="receipt-meta__text">{view.receipt.meta.luckyColor}</p>
@@ -370,9 +383,9 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
           </div>
         </section>
 
-        <section className="receipt-stamps receipt-section" aria-label="附加标记">
-          <p>{view.receipt.subtitle || '待定'}</p>
-          <p>待定</p>
+        <section className="receipt-stamps receipt-section" aria-label={'\u9644\u52a0\u6807\u8bb0'}>
+          <p>{view.receipt.subtitle || '\u5f85\u5b9a'}</p>
+          <p>{'\u5f85\u5b9a'}</p>
         </section>
 
         <footer className="receipt-footer receipt-section">

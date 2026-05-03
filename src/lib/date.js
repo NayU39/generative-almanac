@@ -37,7 +37,7 @@ export function buildReceiptDateBlock(inputDate) {
     });
     var lunarParts = lunarFormatter.formatToParts(date);
     var relatedYear = (_b = (_a = lunarParts.find(function (part) { return part.type === 'relatedYear'; })) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : String(date.getFullYear());
-    var yearName = (_d = (_c = lunarParts.find(function (part) { return part.type === 'yearName'; })) === null || _c === void 0 ? void 0 : _c.value) !== null && _d !== void 0 ? _d : '甲辰';
+    var yearName = (_d = (_c = lunarParts.find(function (part) { return part.type === 'yearName'; })) === null || _c === void 0 ? void 0 : _c.value) !== null && _d !== void 0 ? _d : '\u7532\u8fb0';
     var lunarMonth = (_f = (_e = lunarParts.find(function (part) { return part.type === 'month'; })) === null || _e === void 0 ? void 0 : _e.value) !== null && _f !== void 0 ? _f : '';
     var lunarDay = (_h = (_g = lunarParts.find(function (part) { return part.type === 'day'; })) === null || _g === void 0 ? void 0 : _g.value) !== null && _h !== void 0 ? _h : '';
     return {
