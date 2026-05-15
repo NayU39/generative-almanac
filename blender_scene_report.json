@@ -1,0 +1,427 @@
+[
+  {
+    "name": "CAM_Base_ThreeQuarter",
+    "type": "CAMERA",
+    "parent": null,
+    "visible": false,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      260.0,
+      -220.0,
+      170.0
+    ],
+    "dimensions_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "verts": null,
+    "faces": null
+  },
+  {
+    "name": "CUT_NeedleHole_2p4mm",
+    "type": "MESH",
+    "parent": null,
+    "visible": false,
+    "hide_viewport": false,
+    "hide_render": true,
+    "location_mm": [
+      0.0,
+      -8.0,
+      11.0
+    ],
+    "dimensions_mm": [
+      2.4,
+      2.4,
+      30.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "verts": 128,
+    "faces": 66
+  },
+  {
+    "name": "LIGHT_Fill",
+    "type": "LIGHT",
+    "parent": null,
+    "visible": false,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -180.0,
+      -120.0,
+      140.0
+    ],
+    "dimensions_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "verts": null,
+    "faces": null
+  },
+  {
+    "name": "LIGHT_Key",
+    "type": "LIGHT",
+    "parent": null,
+    "visible": false,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      260.0,
+      -260.0,
+      220.0
+    ],
+    "dimensions_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "verts": null,
+    "faces": null
+  },
+  {
+    "name": "LIGHT_Rim",
+    "type": "LIGHT",
+    "parent": null,
+    "visible": false,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      0.0,
+      120.0,
+      120.0
+    ],
+    "dimensions_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "verts": null,
+    "faces": null
+  },
+  {
+    "name": "Mesh_0",
+    "type": "MESH",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      512.402,
+      -932.49,
+      174.073
+    ],
+    "dimensions_mm": [
+      203.478,
+      476.666,
+      172.56
+    ],
+    "scale": [
+      0.43876147,
+      0.43876147,
+      0.43876147
+    ],
+    "verts": 749781,
+    "faces": 1499602
+  },
+  {
+    "name": "PRINT_Base_Lower",
+    "type": "MESH",
+    "parent": null,
+    "visible": false,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -347.829,
+      0.0,
+      6.445
+    ],
+    "dimensions_mm": [
+      160.0,
+      90.0,
+      6.024
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "verts": 488,
+    "faces": 486
+  },
+  {
+    "name": "PRINT_Base_Upper",
+    "type": "MESH",
+    "parent": null,
+    "visible": false,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -347.829,
+      0.0,
+      19.445
+    ],
+    "dimensions_mm": [
+      150.0,
+      80.0,
+      18.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "verts": 488,
+    "faces": 485
+  },
+  {
+    "name": "空物体",
+    "type": "EMPTY",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      121.556,
+      -0.0,
+      132.465
+    ],
+    "dimensions_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      0.13360451,
+      0.13360448,
+      0.13360454
+    ],
+    "verts": null,
+    "faces": null
+  },
+  {
+    "name": "空物体.001",
+    "type": "EMPTY",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      121.556,
+      162.037,
+      -66.259
+    ],
+    "dimensions_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      0.13360451,
+      0.13360448,
+      0.13360454
+    ],
+    "verts": null,
+    "faces": null
+  },
+  {
+    "name": "空物体.002",
+    "type": "EMPTY",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -341.651,
+      -252.798,
+      0.0
+    ],
+    "dimensions_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      0.02427026,
+      0.02427026,
+      0.02427026
+    ],
+    "verts": null,
+    "faces": null
+  },
+  {
+    "name": "立方体",
+    "type": "MESH",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      0.0,
+      -39.899,
+      17.215
+    ],
+    "dimensions_mm": [
+      148.03,
+      52.025,
+      20.473
+    ],
+    "scale": [
+      7.401e-05,
+      2.601e-05,
+      1.086e-05
+    ],
+    "verts": 8,
+    "faces": 6
+  },
+  {
+    "name": "立方体.001",
+    "type": "MESH",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      0.0,
+      -39.899,
+      0.039
+    ],
+    "dimensions_mm": [
+      160.163,
+      59.604,
+      11.881
+    ],
+    "scale": [
+      8.008e-05,
+      2.98e-05,
+      5.94e-06
+    ],
+    "verts": 8,
+    "faces": 6
+  },
+  {
+    "name": "立方体.002",
+    "type": "MESH",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -45.464,
+      -33.507,
+      31.716
+    ],
+    "dimensions_mm": [
+      28.833,
+      20.454,
+      8.049
+    ],
+    "scale": [
+      1.442e-05,
+      1.023e-05,
+      4.27e-06
+    ],
+    "verts": 8,
+    "faces": 6
+  },
+  {
+    "name": "立方体.003",
+    "type": "MESH",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -45.464,
+      -33.507,
+      38.854
+    ],
+    "dimensions_mm": [
+      24.328,
+      15.432,
+      288.876
+    ],
+    "scale": [
+      1.216e-05,
+      7.72e-06,
+      3.22e-06
+    ],
+    "verts": 8,
+    "faces": 6
+  },
+  {
+    "name": "立方体.004",
+    "type": "MESH",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -361.997,
+      -287.601,
+      -2.099
+    ],
+    "dimensions_mm": [
+      68.813,
+      20.454,
+      3.692
+    ],
+    "scale": [
+      1.442e-05,
+      1.023e-05,
+      4.27e-06
+    ],
+    "verts": 8,
+    "faces": 6
+  },
+  {
+    "name": "立方体.005",
+    "type": "MESH",
+    "parent": null,
+    "visible": true,
+    "hide_viewport": false,
+    "hide_render": false,
+    "location_mm": [
+      -363.36,
+      -287.601,
+      1.092
+    ],
+    "dimensions_mm": [
+      85.312,
+      20.614,
+      14.84
+    ],
+    "scale": [
+      1.521e-05,
+      1.023e-05,
+      4.27e-06
+    ],
+    "verts": 103,
+    "faces": 86
+  }
+]

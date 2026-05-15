@@ -4,5 +4,5 @@ type ReceiptCanvasProps = {
     receipt: ReceiptAlmanac;
     mode?: 'default' | 'preview';
 };
-export declare const ReceiptCanvas: import("react").ForwardRefExoticComponent<ReceiptCanvasProps & import("react").RefAttributes<HTMLDivElement>>;
+export declare const ReceiptCanvas: import("react").ForwardRefExoticComponent<ReceiptCanvasProps & import("react").RefAttributes<HTMLElement>>;
 export {};

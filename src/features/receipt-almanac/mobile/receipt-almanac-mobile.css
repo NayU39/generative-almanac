@@ -655,11 +655,18 @@ button {
 }
 
 .ra-receipt-toolbar__back,
+.ra-receipt-toolbar__save,
 .ra-receipt-toolbar__archive {
   border: 1px solid var(--ra-line);
   border-radius: 18px;
   color: var(--ra-ink);
   cursor: pointer;
+}
+
+.ra-receipt-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .ra-receipt-toolbar__back {
@@ -679,6 +686,25 @@ button {
 .ra-receipt-toolbar__archive svg {
   width: 18px;
   height: 18px;
+}
+
+.ra-receipt-toolbar__save {
+  min-height: 46px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.ra-receipt-toolbar__save span {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+.ra-receipt-toolbar__save:disabled {
+  opacity: 0.42;
+  cursor: default;
 }
 
 .ra-receipt-toolbar__archive {
@@ -905,6 +931,7 @@ button {
 .ra-mini-date:hover,
 .ra-archive-entry:hover,
 .ra-receipt-toolbar__back:hover,
+.ra-receipt-toolbar__save:hover,
 .ra-receipt-toolbar__archive:hover,
 .ra-archive-drawer__close:hover,
 .ra-archive-item:hover,
@@ -916,11 +943,18 @@ button {
 .ra-mini-date:active,
 .ra-archive-entry:active,
 .ra-receipt-toolbar__back:active,
+.ra-receipt-toolbar__save:active,
 .ra-receipt-toolbar__archive:active,
 .ra-archive-drawer__close:active,
 .ra-archive-item:active,
 .ra-generate-button:not(:disabled):active {
   transform: scale(0.985);
+}
+
+.ra-receipt-toolbar__save:disabled:hover,
+.ra-receipt-toolbar__save:disabled:active {
+  opacity: 0.42;
+  transform: none;
 }
 
 @media (max-width: 430px) {

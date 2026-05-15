@@ -48,6 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useMemo, useRef, useState } from 'react';
 import { buildReceiptDateBlock } from '../../../lib/date';
+import { exportNodeAsPng } from '../../../lib/exportImage';
 import { ReceiptCanvas } from '../components/ReceiptCanvas';
 import { generateReceiptContent } from '../services/generateReceiptContent';
 import { normalizeReceiptRecord } from '../utils/normalizeReceiptRecord';
@@ -71,6 +72,7 @@ var COPY = {
     swipeHint: '\u5de6\u6ed1\u67e5\u770b\u4eca\u65e5\u5c0f\u7968',
     generate: '\u751f\u6210\u4eca\u65e5\u5c0f\u7968',
     backToInput: '\u8fd4\u56de\u8f93\u5165\u9875',
+    save: '\u4fdd\u5b58',
     previewEmptyTitle: '\u5f53\u524d\u8fd8\u6ca1\u6709\u53ef\u9884\u89c8\u7684\u5c0f\u7968',
     previewEmptyDraft: '\u5148\u751f\u6210\u5f53\u524d\u65e5\u671f\u5185\u5bb9\uff0c\u518d\u5de6\u6ed1\u67e5\u770b\u5f53\u65e5\u5c0f\u7968\u3002',
     previewEmptyBlank: '\u5148\u5199\u4e0b\u8fd9\u4e00\u5929\uff0c\u518d\u751f\u6210\u5f53\u524d\u65e5\u671f\u7684\u5c0f\u7968\u3002',
@@ -253,16 +255,11 @@ function CloseIcon() {
     return (_jsx("svg", { "aria-hidden": "true", viewBox: "0 0 24 24", children: _jsx("path", { d: "m6 6 12 12M18 6 6 18", fill: "none", stroke: "currentColor", strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5" }) }));
 }
 function ReceiptPreviewPanel(_a) {
-    var entry = _a.entry, selectedDate = _a.selectedDate, draft = _a.draft;
-    var normalizedDraft = draft.trim();
-    if (!entry || entry.draft !== normalizedDraft) {
-        return (_jsx("section", { className: "ra-receipt-preview ra-receipt-preview--empty", children: _jsxs("div", { className: "ra-receipt-preview__empty-card", children: [_jsx("p", { className: "ra-mono-label", children: "RECEIPT PREVIEW" }), _jsx("h2", { children: COPY.previewEmptyTitle }), _jsx("p", { children: normalizedDraft ? COPY.previewEmptyDraft : COPY.previewEmptyBlank }), _jsx("span", { children: selectedDate })] }) }));
+    var receipt = _a.receipt, selectedDate = _a.selectedDate, hasDraft = _a.hasDraft, receiptRef = _a.receiptRef;
+    if (!receipt) {
+        return (_jsx("section", { className: "ra-receipt-preview ra-receipt-preview--empty", children: _jsxs("div", { className: "ra-receipt-preview__empty-card", children: [_jsx("p", { className: "ra-mono-label", children: "RECEIPT PREVIEW" }), _jsx("h2", { children: COPY.previewEmptyTitle }), _jsx("p", { children: hasDraft ? COPY.previewEmptyDraft : COPY.previewEmptyBlank }), _jsx("span", { children: selectedDate })] }) }));
     }
-    var receipt = normalizeReceiptRecord(entry.receipt, {
-        userInput: entry.draft,
-        date: entry.dateIso,
-    });
-    return (_jsx("section", { className: "ra-receipt-preview", children: _jsx("div", { className: "ra-receipt-preview__canvas", children: _jsx(ReceiptCanvas, { receipt: receipt, mode: "preview" }) }) }));
+    return (_jsx("section", { className: "ra-receipt-preview", children: _jsx("div", { className: "ra-receipt-preview__canvas", children: _jsx(ReceiptCanvas, { receipt: receipt, mode: "preview", ref: receiptRef }) }) }));
 }
 function GeneratingOverlay() {
     return (_jsx("div", { className: "ra-overlay", role: "status", "aria-live": "polite", children: _jsxs("div", { className: "ra-overlay__panel", children: [_jsx("p", { className: "ra-mono-label", children: "GENERATING" }), _jsx("h2", { children: COPY.overlayTitle }), _jsx("p", { children: COPY.overlayBody })] }) }));
@@ -278,8 +275,10 @@ export function ReceiptAlmanacMobileApp() {
     var _f = useState('input'), setActivePanel = _f[1];
     var _g = useState(false), isArchiveOpen = _g[0], setIsArchiveOpen = _g[1];
     var panelRef = useRef(null);
+    var receiptRef = useRef(null);
     var draft = (_a = drafts[selectedDate]) !== null && _a !== void 0 ? _a : '';
     var generatedEntry = generatedMap[selectedDate];
+    var normalizedDraft = draft.trim();
     var dateMeta = buildReceiptDateBlock(selectedDate);
     var lunarSummary = useMemo(function () { return buildLunarSummary(selectedDate, dateMeta.ganzhi, dateMeta.lunar); }, [dateMeta.ganzhi, dateMeta.lunar, selectedDate]);
     var dateOptions = useMemo(function () { return buildDateOptions(selectedDate, generatedMap); }, [generatedMap, selectedDate]);
@@ -291,6 +290,12 @@ export function ReceiptAlmanacMobileApp() {
             return __assign(__assign({}, entry), { label: "".concat(meta.month, "/").concat(meta.day), weekdayZh: meta.weekdayZh.replace('\u661f\u671f', '\u5468') });
         });
     }, [generatedMap]);
+    var previewEntry = generatedEntry && generatedEntry.draft === normalizedDraft
+        ? normalizeReceiptRecord(generatedEntry.receipt, {
+            userInput: generatedEntry.draft,
+            date: generatedEntry.dateIso,
+        })
+        : undefined;
     var handleDraftChange = function (value) {
         setDrafts(function (current) {
             var _a;
@@ -298,11 +303,10 @@ export function ReceiptAlmanacMobileApp() {
         });
     };
     var handleGenerate = function () { return __awaiter(_this, void 0, void 0, function () {
-        var normalizedDraft, receipt, nextEntry_1;
+        var receipt, nextEntry_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    normalizedDraft = draft.trim();
                     if (!normalizedDraft || isGenerating) {
                         return [2 /*return*/];
                     }
@@ -340,6 +344,20 @@ export function ReceiptAlmanacMobileApp() {
             }
         });
     }); };
+    var handleSaveReceipt = function () { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!previewEntry || !receiptRef.current) {
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, exportNodeAsPng(receiptRef.current, "".concat(previewEntry.issueCode, "-").concat(previewEntry.serialNo, "-long.png"))];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    }); };
     return (_jsxs("main", { className: "ra-app-shell", children: [_jsxs("div", { className: "ra-page-frame", children: [_jsxs("div", { className: "ra-panels", ref: panelRef, onScroll: function (event) {
                             var container = event.currentTarget;
                             setActivePanel(container.scrollLeft > container.clientWidth / 2 ? 'receipt' : 'input');
@@ -349,7 +367,7 @@ export function ReceiptAlmanacMobileApp() {
                                                     }) }), _jsx("button", { className: "ra-strip-card__arrow", onClick: function () { return setSelectedDate(shiftDate(selectedDate, 1)); }, type: "button", "aria-label": COPY.nextDay, children: _jsx(ChevronIcon, { direction: "right" }) })] }), _jsxs("section", { className: "ra-date-card", children: [_jsxs("div", { className: "ra-date-card__top", children: [_jsx("div", { className: "ra-date-card__labels", children: _jsx("span", { className: "ra-date-card__solar ra-date-card__solar--primary", children: COPY.solar }) }), _jsxs("div", { className: "ra-date-card__status", children: [_jsxs("span", { className: "ra-radio-status is-active", children: [_jsx("i", {}), COPY.recorded] }), _jsxs("span", { className: "ra-radio-status", children: [_jsx("i", {}), COPY.available] })] })] }), _jsxs("div", { className: "ra-date-card__main", children: [_jsxs("div", { className: "ra-date-card__digits", children: [_jsxs("div", { className: "ra-date-card__line", children: [_jsx("span", { children: dateMeta.year }), _jsx("em", { children: " / " })] }), _jsxs("div", { className: "ra-date-card__line", children: [_jsx("span", { children: dateMeta.month }), _jsx("em", { children: " / " }), _jsx("span", { children: dateMeta.day })] })] }), _jsxs("div", { className: "ra-weekday-capsule", children: [_jsx("strong", { children: dateMeta.weekdayZh.replace('\u661f\u671f', '\u5468') }), _jsx("small", { children: dateMeta.weekdayEn.slice(0, 3) })] })] }), _jsxs("div", { className: "ra-date-card__bottom", children: [_jsx("span", { className: "ra-date-card__solar ra-date-card__solar--primary", children: COPY.lunar }), _jsxs("div", { className: "ra-date-card__lunar-row", children: [_jsx("span", { children: lunarSummary.yearPillar }), _jsx("span", { children: lunarSummary.monthPillar }), _jsx("span", { children: lunarSummary.dayPillar }), _jsx("span", { children: lunarSummary.lunarLabel })] })] })] }), _jsx("div", { className: "ra-divider", "aria-hidden": "true", children: _jsx("span", {}) }), _jsx("section", { className: "ra-input-card", children: _jsxs("div", { className: "ra-input-card__head", children: [_jsxs("div", { children: [_jsx("p", { className: "ra-mono-label", children: "INPUT FOR THIS DAY" }), _jsx("h2", { children: COPY.inputTitle }), _jsx("p", { children: COPY.inputHint })] }), _jsxs("span", { className: "ra-input-card__count", children: [draft.length, " / ", MAX_CHARS] })] }) }), _jsx("section", { className: "ra-editor-card", children: _jsxs("div", { className: "ra-editor-card__field", children: [_jsx("textarea", { value: draft, onChange: function (event) { return handleDraftChange(event.target.value.slice(0, MAX_CHARS)); }, placeholder: COPY.placeholder, rows: 6 }), _jsx("span", { className: "ra-editor-card__feather", "aria-hidden": "true", children: _jsx(FeatherIcon, {}) })] }) }), _jsxs("section", { className: "ra-swipe-hint", "aria-label": COPY.swipeHint, children: [_jsx("span", { className: "ra-swipe-hint__icon", "aria-hidden": "true", children: _jsx(SwipeHintIcon, {}) }), _jsxs("div", { className: "ra-swipe-hint__copy", children: [_jsx("strong", { children: COPY.swipeHint }), _jsx("small", { children: "SWIPE LEFT TO VIEW TODAY'S RECEIPT" })] })] }), _jsxs("button", { className: "ra-generate-button", onClick: handleGenerate, type: "button", disabled: isGenerating || !draft.trim(), children: [_jsx("span", { className: "ra-generate-button__icon", children: _jsx(ReceiptGlyph, {}) }), _jsx("span", { className: "ra-generate-button__copy", children: _jsx("strong", { children: COPY.generate }) }), _jsx("span", { className: "ra-generate-button__arrow", children: _jsx(ArrowIcon, {}) })] })] }) }), _jsx("section", { className: "ra-panel ra-panel--receipt", children: _jsxs("div", { className: "ra-screen ra-screen--receipt", children: [_jsxs("section", { className: "ra-receipt-toolbar", children: [_jsxs("button", { className: "ra-receipt-toolbar__back", onClick: function () {
                                                         setActivePanel('input');
                                                         scrollToPanel(panelRef.current, 'input');
-                                                    }, type: "button", children: [_jsx(SwipeHintIcon, {}), _jsx("span", { children: COPY.backToInput })] }), _jsx("button", { className: "ra-receipt-toolbar__archive", onClick: function () { return setIsArchiveOpen(true); }, type: "button", "aria-label": COPY.archive, children: _jsx(ArchiveIcon, {}) })] }), _jsx(ReceiptPreviewPanel, { entry: generatedEntry, selectedDate: selectedDate, draft: draft })] }) })] }), isArchiveOpen ? (_jsxs("div", { className: "ra-archive-layer", role: "dialog", "aria-modal": "true", "aria-label": COPY.archive, children: [_jsx("button", { className: "ra-archive-layer__backdrop", onClick: function () { return setIsArchiveOpen(false); }, type: "button", "aria-label": COPY.archive }), _jsxs("aside", { className: "ra-archive-drawer", children: [_jsxs("div", { className: "ra-archive-drawer__head", children: [_jsxs("div", { children: [_jsx("p", { className: "ra-mono-label", children: "ARCHIVE" }), _jsx("h2", { children: COPY.archive })] }), _jsx("button", { className: "ra-archive-drawer__close", onClick: function () { return setIsArchiveOpen(false); }, type: "button", "aria-label": COPY.archive, children: _jsx(CloseIcon, {}) })] }), archiveEntries.length > 0 ? (_jsx("div", { className: "ra-archive-list", children: archiveEntries.map(function (entry) { return (_jsxs("button", { className: "ra-archive-item ".concat(entry.dateIso === selectedDate ? 'is-current' : ''), onClick: function () {
+                                                    }, type: "button", children: [_jsx(SwipeHintIcon, {}), _jsx("span", { children: COPY.backToInput })] }), _jsxs("div", { className: "ra-receipt-toolbar__actions", children: [_jsx("button", { className: "ra-receipt-toolbar__save", onClick: handleSaveReceipt, type: "button", disabled: !previewEntry, children: _jsx("span", { children: COPY.save }) }), _jsx("button", { className: "ra-receipt-toolbar__archive", onClick: function () { return setIsArchiveOpen(true); }, type: "button", "aria-label": COPY.archive, children: _jsx(ArchiveIcon, {}) })] })] }), _jsx(ReceiptPreviewPanel, { receipt: previewEntry, selectedDate: selectedDate, hasDraft: Boolean(normalizedDraft), receiptRef: receiptRef })] }) })] }), isArchiveOpen ? (_jsxs("div", { className: "ra-archive-layer", role: "dialog", "aria-modal": "true", "aria-label": COPY.archive, children: [_jsx("button", { className: "ra-archive-layer__backdrop", onClick: function () { return setIsArchiveOpen(false); }, type: "button", "aria-label": COPY.archive }), _jsxs("aside", { className: "ra-archive-drawer", children: [_jsxs("div", { className: "ra-archive-drawer__head", children: [_jsxs("div", { children: [_jsx("p", { className: "ra-mono-label", children: "ARCHIVE" }), _jsx("h2", { children: COPY.archive })] }), _jsx("button", { className: "ra-archive-drawer__close", onClick: function () { return setIsArchiveOpen(false); }, type: "button", "aria-label": COPY.archive, children: _jsx(CloseIcon, {}) })] }), archiveEntries.length > 0 ? (_jsx("div", { className: "ra-archive-list", children: archiveEntries.map(function (entry) { return (_jsxs("button", { className: "ra-archive-item ".concat(entry.dateIso === selectedDate ? 'is-current' : ''), onClick: function () {
                                                 setSelectedDate(entry.dateIso);
                                                 setIsArchiveOpen(false);
                                                 setActivePanel('receipt');

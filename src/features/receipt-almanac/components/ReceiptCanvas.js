@@ -16,36 +16,42 @@ var CHINESE_DIGITS = [
 ];
 var STEMS = ['\u7532', '\u4e59', '\u4e19', '\u4e01', '\u620a', '\u5df1', '\u5e9a', '\u8f9b', '\u58ec', '\u7678'];
 var BRANCHES = ['\u5b50', '\u4e11', '\u5bc5', '\u536f', '\u8fb0', '\u5df3', '\u5348', '\u672a', '\u7533', '\u9149', '\u620c', '\u4ea5'];
-var STEM_PINYIN = {
-    '\u7532': 'JIA',
-    '\u4e59': 'YI',
-    '\u4e19': 'BING',
-    '\u4e01': 'DING',
-    '\u620a': 'WU',
-    '\u5df1': 'JI',
-    '\u5e9a': 'GENG',
-    '\u8f9b': 'XIN',
-    '\u58ec': 'REN',
-    '\u7678': 'GUI',
-};
-var BRANCH_PINYIN = {
-    '\u5b50': 'ZI',
-    '\u4e11': 'CHOU',
-    '\u5bc5': 'YIN',
-    '\u536f': 'MAO',
-    '\u8fb0': 'CHEN',
-    '\u5df3': 'SI',
-    '\u5348': 'WU',
-    '\u672a': 'WEI',
-    '\u7533': 'SHEN',
-    '\u9149': 'YOU',
-    '\u620c': 'XU',
-    '\u4ea5': 'HAI',
-};
 var BARCODE_PATTERN = [
     4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2,
     3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2,
 ];
+var LUNAR_DAY_MAP = {
+    '1': '\u521d\u4e00',
+    '2': '\u521d\u4e8c',
+    '3': '\u521d\u4e09',
+    '4': '\u521d\u56db',
+    '5': '\u521d\u4e94',
+    '6': '\u521d\u516d',
+    '7': '\u521d\u4e03',
+    '8': '\u521d\u516b',
+    '9': '\u521d\u4e5d',
+    '10': '\u521d\u5341',
+    '11': '\u5341\u4e00',
+    '12': '\u5341\u4e8c',
+    '13': '\u5341\u4e09',
+    '14': '\u5341\u56db',
+    '15': '\u5341\u4e94',
+    '16': '\u5341\u516d',
+    '17': '\u5341\u4e03',
+    '18': '\u5341\u516b',
+    '19': '\u5341\u4e5d',
+    '20': '\u4e8c\u5341',
+    '21': '\u5eff\u4e00',
+    '22': '\u5eff\u4e8c',
+    '23': '\u5eff\u4e09',
+    '24': '\u5eff\u56db',
+    '25': '\u5eff\u4e94',
+    '26': '\u5eff\u516d',
+    '27': '\u5eff\u4e03',
+    '28': '\u5eff\u516b',
+    '29': '\u5eff\u4e5d',
+    '30': '\u4e09\u5341',
+};
 function toChineseYear(year) {
     return year
         .split('')
@@ -117,14 +123,14 @@ function getJulianDayNumber(date) {
         Math.floor(y / 400) -
         32045);
 }
-function toPinyinGanzhi(token) {
-    var _a, _b;
-    var chars = token.replace(/[\u5e74\u6708\u65e5]/g, '').split('');
-    if (chars.length < 2) {
-        return token.toUpperCase();
+function normalizeLunarDisplay(label) {
+    var match = label.trim().match(/^(.+\u6708)(\d{1,2}|[^\d]+)$/);
+    if (!match) {
+        return label;
     }
-    var stem = chars[0], branch = chars[1];
-    return "".concat((_a = STEM_PINYIN[stem]) !== null && _a !== void 0 ? _a : stem, "-").concat((_b = BRANCH_PINYIN[branch]) !== null && _b !== void 0 ? _b : branch);
+    var month = match[1], dayToken = match[2];
+    var normalizedDay = dayToken in LUNAR_DAY_MAP ? "".concat(LUNAR_DAY_MAP[dayToken], "\u65E5") : dayToken.endsWith('日') ? dayToken : "".concat(dayToken, "\u65E5");
+    return "".concat(month).concat(normalizedDay);
 }
 function buildLunarDetails(inputDate, fallbackDisplay) {
     var _a, _b, _c, _d, _e, _f, _g;
@@ -154,13 +160,8 @@ function buildLunarDetails(inputDate, fallbackDisplay) {
         "".concat(dayStem).concat(dayBranch, "\u65E5"),
     ];
     return {
-        display: fallbackDisplay || "".concat(lunarMonth).concat(lunarDay),
+        display: normalizeLunarDisplay(fallbackDisplay || "".concat(lunarMonth).concat(lunarDay)),
         pillarsZh: pillarsZh,
-        pillarsEn: [
-            "YEAR OF ".concat(toPinyinGanzhi(pillarsZh[0])),
-            "MONTH OF ".concat(toPinyinGanzhi(pillarsZh[1])),
-            "DAY OF ".concat(toPinyinGanzhi(pillarsZh[2])),
-        ],
     };
 }
 function buildViewModel(source) {
@@ -184,5 +185,5 @@ function buildViewModel(source) {
 export var ReceiptCanvas = forwardRef(function ReceiptCanvas(_a, ref) {
     var receipt = _a.receipt, _b = _a.mode, mode = _b === void 0 ? 'default' : _b;
     var view = buildViewModel(receipt);
-    return (_jsx("div", { className: "receipt-canvas-shell ".concat(mode === 'preview' ? 'is-preview' : ''), children: _jsxs("article", { className: "receipt-canvas ".concat(mode === 'preview' ? 'is-preview' : ''), ref: ref, children: [_jsxs("header", { className: "receipt-top-meta receipt-section", children: [_jsxs("div", { children: [_jsx("span", { className: "receipt-label", children: "ISSUE CODE:" }), _jsx("strong", { children: view.receipt.issueCode })] }), _jsxs("div", { children: [_jsx("span", { className: "receipt-label", children: "SERIAL NO." }), _jsx("strong", { children: view.receipt.serialNo })] })] }), _jsxs("section", { className: "receipt-hero receipt-section", children: [_jsx("h2", { children: '\u4eca\u65e5' }), _jsx("p", { children: view.receipt.summary })] }), _jsxs("section", { className: "receipt-date-panel receipt-section", children: [_jsxs("div", { className: "receipt-date-panel__row", children: [_jsxs("div", { className: "receipt-bilingual-label", children: [_jsx("span", { children: '\u516c\u5386' }), _jsx("span", { children: "SOLAR CALANDER" })] }), _jsx("p", { className: "receipt-chinese-year", children: view.chineseYear })] }), _jsxs("div", { className: "receipt-date-stack", "aria-label": view.receipt.date.solar, children: [_jsx("p", { children: view.receipt.date.year }), _jsxs("div", { className: "receipt-date-stack__middle", children: [_jsx("span", { children: "-" }), _jsx("span", { children: view.receipt.date.month }), _jsxs("div", { className: "receipt-date-stack__badges", children: [_jsx("i", { children: '\u5e74' }), _jsx("i", { children: '\u6708' }), _jsx("i", { children: '\u65e5' })] })] }), _jsx("p", { children: view.receipt.date.day })] }), _jsx("div", { className: "receipt-date-panel__footer", children: _jsxs("div", { className: "receipt-weekday", children: [_jsx("span", { children: view.receipt.date.weekdayZh }), _jsx("span", { children: view.receipt.date.weekdayEn })] }) })] }), _jsxs("section", { className: "receipt-lunar receipt-section", children: [_jsxs("div", { className: "receipt-lunar__header", children: [_jsxs("div", { className: "receipt-bilingual-label", children: [_jsx("span", { children: '\u519c\u5386' }), _jsx("span", { children: "LUNAR CALANDER" })] }), _jsx("p", { children: view.lunarDetails.display })] }), _jsxs("div", { className: "receipt-lunar__body", children: [_jsx("div", { className: "receipt-lunar__pillars", children: view.lunarDetails.pillarsZh.map(function (item) { return (_jsx("span", { children: item }, item)); }) }), _jsx("div", { className: "receipt-lunar__gloss", children: view.lunarDetails.pillarsEn.map(function (item) { return (_jsx("span", { children: item }, item)); }) })] })] }), _jsxs("section", { className: "receipt-judgement receipt-section", children: [_jsx("h3", { children: '\u00b7 \u4eca\u65e5\u5224\u65ad \u00b7' }), _jsx("p", { children: view.receipt.headline })] }), _jsxs("section", { className: "receipt-yi-ji receipt-section", children: [_jsxs("div", { className: "receipt-yi-ji__column", children: [_jsx("div", { className: "receipt-yi-ji__badge", children: '\u5b9c' }), _jsx("ul", { children: view.receipt.yi.map(function (item) { return (_jsx("li", { children: item }, "yi-".concat(item))); }) })] }), _jsx("div", { className: "receipt-yi-ji__divider" }), _jsxs("div", { className: "receipt-yi-ji__column", children: [_jsx("div", { className: "receipt-yi-ji__badge", children: '\u5fcc' }), _jsx("ul", { children: view.receipt.ji.map(function (item) { return (_jsx("li", { children: item }, "ji-".concat(item))); }) })] })] }), _jsxs("section", { className: "receipt-meta receipt-section", children: [_jsxs("div", { className: "receipt-meta__column", children: [_jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u5409\u65f6' }), _jsx("span", { children: "AUSPICCIOUS TIME" })] }), _jsx("div", { className: "receipt-meta__times", children: view.timeLines.map(function (line) { return (_jsx("p", { children: line }, line)); }) })] }), _jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u65b9\u4f4d' }), _jsx("span", { children: "DIRECTION" })] }), _jsx("p", { className: "receipt-meta__text", children: view.receipt.meta.direction })] })] }), _jsx("div", { className: "receipt-meta__divider" }), _jsxs("div", { className: "receipt-meta__column", children: [_jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u4eca\u65e5\u80fd\u91cf' }), _jsx("span", { children: "ENERGY INDEX" })] }), _jsx("div", { className: "receipt-energy", children: view.energyBars.map(function (item) { return (_jsxs("div", { className: "receipt-energy__row", children: [_jsx("span", { children: "".concat(item.label, "  ").concat(item.value, "%") }), _jsx("div", { className: "receipt-energy__track", children: _jsx("div", { className: "receipt-energy__fill", style: { width: "".concat(item.value, "%") } }) })] }, item.label)); }) })] }), _jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u5e78\u8fd0\u8272' }), _jsx("span", { children: "LUCKY COLOR" })] }), _jsx("p", { className: "receipt-meta__text", children: view.receipt.meta.luckyColor })] })] })] }), _jsxs("section", { className: "receipt-stamps receipt-section", "aria-label": '\u9644\u52a0\u6807\u8bb0', children: [_jsx("p", { children: view.receipt.subtitle || '\u5f85\u5b9a' }), _jsx("p", { children: '\u5f85\u5b9a' })] }), _jsxs("footer", { className: "receipt-footer receipt-section", children: [_jsx("p", { className: "receipt-footer__title", children: "GENERATIVE ALMANAC" }), _jsx("p", { className: "receipt-footer__time", children: view.printedAt }), _jsx("p", { className: "receipt-footer__series", children: "RECEIPT ALMANAC SERIES" }), _jsx("div", { className: "receipt-barcode", "aria-hidden": "true", children: BARCODE_PATTERN.map(function (width, index) { return (_jsx("span", { style: { width: "".concat(width, "px") } }, "".concat(width, "-").concat(index))); }) }), _jsx("p", { className: "receipt-footer__code", children: view.receipt.barcodeValue })] })] }) }));
+    return (_jsx("div", { className: "receipt-canvas-shell ".concat(mode === 'preview' ? 'is-preview' : ''), children: _jsxs("article", { className: "receipt-canvas ".concat(mode === 'preview' ? 'is-preview' : ''), ref: ref, children: [_jsxs("header", { className: "receipt-top-meta receipt-section", children: [_jsxs("div", { children: [_jsx("span", { className: "receipt-label", children: "ISSUE CODE:" }), _jsx("strong", { children: view.receipt.issueCode })] }), _jsxs("div", { children: [_jsx("span", { className: "receipt-label", children: "SERIAL NO." }), _jsx("strong", { children: view.receipt.serialNo })] })] }), _jsxs("section", { className: "receipt-hero receipt-section", children: [_jsx("h2", { children: '\u4eca\u65e5' }), _jsx("p", { children: view.receipt.summary })] }), _jsxs("section", { className: "receipt-date-panel receipt-section", children: [_jsxs("div", { className: "receipt-date-panel__row", children: [_jsxs("div", { className: "receipt-bilingual-label", children: [_jsx("span", { children: '\u516c\u5386' }), _jsx("span", { children: "SOLAR CALANDER" })] }), _jsx("p", { className: "receipt-chinese-year", children: view.chineseYear })] }), _jsxs("div", { className: "receipt-date-stack", "aria-label": view.receipt.date.solar, children: [_jsx("p", { children: view.receipt.date.year }), _jsxs("div", { className: "receipt-date-stack__middle", children: [_jsx("span", { children: "-" }), _jsx("span", { children: view.receipt.date.month }), _jsxs("div", { className: "receipt-date-stack__badges", children: [_jsx("i", { children: '\u5e74' }), _jsx("i", { children: '\u6708' }), _jsx("i", { children: '\u65e5' })] })] }), _jsx("p", { children: view.receipt.date.day })] }), _jsx("div", { className: "receipt-date-panel__footer", children: _jsxs("div", { className: "receipt-weekday", children: [_jsx("span", { children: view.receipt.date.weekdayZh }), _jsx("span", { children: view.receipt.date.weekdayEn })] }) })] }), _jsxs("section", { className: "receipt-lunar receipt-section", children: [_jsxs("div", { className: "receipt-lunar__header", children: [_jsxs("div", { className: "receipt-bilingual-label", children: [_jsx("span", { children: '\u519c\u5386' }), _jsx("span", { children: "LUNAR CALANDER" })] }), _jsx("p", { children: view.lunarDetails.display })] }), _jsx("div", { className: "receipt-lunar__body", children: _jsx("div", { className: "receipt-lunar__pillars", children: view.lunarDetails.pillarsZh.map(function (item) { return (_jsx("span", { children: item }, item)); }) }) })] }), _jsxs("section", { className: "receipt-judgement receipt-section", children: [_jsx("h3", { children: '\u00b7 \u4eca\u65e5\u5224\u65ad \u00b7' }), _jsx("p", { children: view.receipt.headline })] }), _jsxs("section", { className: "receipt-yi-ji receipt-section", children: [_jsxs("div", { className: "receipt-yi-ji__column", children: [_jsx("div", { className: "receipt-yi-ji__badge", children: '\u5b9c' }), _jsx("ul", { children: view.receipt.yi.map(function (item) { return (_jsx("li", { children: item }, "yi-".concat(item))); }) })] }), _jsx("div", { className: "receipt-yi-ji__divider" }), _jsxs("div", { className: "receipt-yi-ji__column", children: [_jsx("div", { className: "receipt-yi-ji__badge", children: '\u5fcc' }), _jsx("ul", { children: view.receipt.ji.map(function (item) { return (_jsx("li", { children: item }, "ji-".concat(item))); }) })] })] }), _jsxs("section", { className: "receipt-meta receipt-section", children: [_jsxs("div", { className: "receipt-meta__column", children: [_jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u5409\u65f6' }), _jsx("span", { children: "AUSPICCIOUS TIME" })] }), _jsx("div", { className: "receipt-meta__times", children: view.timeLines.map(function (line) { return (_jsx("p", { children: line }, line)); }) })] }), _jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u65b9\u4f4d' }), _jsx("span", { children: "DIRECTION" })] }), _jsx("p", { className: "receipt-meta__text", children: view.receipt.meta.direction })] })] }), _jsx("div", { className: "receipt-meta__divider" }), _jsxs("div", { className: "receipt-meta__column", children: [_jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u4eca\u65e5\u80fd\u91cf' }), _jsx("span", { children: "ENERGY INDEX" })] }), _jsx("div", { className: "receipt-energy", children: view.energyBars.map(function (item) { return (_jsxs("div", { className: "receipt-energy__row", children: [_jsx("span", { children: "".concat(item.label, "  ").concat(item.value, "%") }), _jsx("div", { className: "receipt-energy__track", children: _jsx("div", { className: "receipt-energy__fill", style: { width: "".concat(item.value, "%") } }) })] }, item.label)); }) })] }), _jsxs("div", { className: "receipt-meta__group", children: [_jsxs("div", { className: "receipt-inline-label", children: [_jsx("strong", { children: '\u5e78\u8fd0\u8272' }), _jsx("span", { children: "LUCKY COLOR" })] }), _jsx("p", { className: "receipt-meta__text", children: view.receipt.meta.luckyColor })] })] })] }), _jsxs("section", { className: "receipt-stamps receipt-section", "aria-label": '\u9644\u52a0\u6807\u8bb0', children: [_jsx("p", { children: view.receipt.subtitle || '\u5f85\u5b9a' }), _jsx("p", { children: '\u5f85\u5b9a' })] }), _jsxs("footer", { className: "receipt-footer receipt-section", children: [_jsx("p", { className: "receipt-footer__title", children: "GENERATIVE ALMANAC" }), _jsx("p", { className: "receipt-footer__time", children: view.printedAt }), _jsx("p", { className: "receipt-footer__series", children: "RECEIPT ALMANAC SERIES" }), _jsx("div", { className: "receipt-barcode", "aria-hidden": "true", children: BARCODE_PATTERN.map(function (width, index) { return (_jsx("span", { style: { width: "".concat(width, "px") } }, "".concat(width, "-").concat(index))); }) }), _jsx("p", { className: "receipt-footer__code", children: view.receipt.barcodeValue })] })] }) }));
 });

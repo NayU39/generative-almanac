@@ -11,7 +11,6 @@ type ReceiptCanvasProps = {
 type LunarDetails = {
   display: string
   pillarsZh: [string, string, string]
-  pillarsEn: [string, string, string]
 }
 
 const CHINESE_DIGITS = [
@@ -28,36 +27,42 @@ const CHINESE_DIGITS = [
 ]
 const STEMS = ['\u7532', '\u4e59', '\u4e19', '\u4e01', '\u620a', '\u5df1', '\u5e9a', '\u8f9b', '\u58ec', '\u7678']
 const BRANCHES = ['\u5b50', '\u4e11', '\u5bc5', '\u536f', '\u8fb0', '\u5df3', '\u5348', '\u672a', '\u7533', '\u9149', '\u620c', '\u4ea5']
-const STEM_PINYIN: Record<string, string> = {
-  '\u7532': 'JIA',
-  '\u4e59': 'YI',
-  '\u4e19': 'BING',
-  '\u4e01': 'DING',
-  '\u620a': 'WU',
-  '\u5df1': 'JI',
-  '\u5e9a': 'GENG',
-  '\u8f9b': 'XIN',
-  '\u58ec': 'REN',
-  '\u7678': 'GUI',
-}
-const BRANCH_PINYIN: Record<string, string> = {
-  '\u5b50': 'ZI',
-  '\u4e11': 'CHOU',
-  '\u5bc5': 'YIN',
-  '\u536f': 'MAO',
-  '\u8fb0': 'CHEN',
-  '\u5df3': 'SI',
-  '\u5348': 'WU',
-  '\u672a': 'WEI',
-  '\u7533': 'SHEN',
-  '\u9149': 'YOU',
-  '\u620c': 'XU',
-  '\u4ea5': 'HAI',
-}
 const BARCODE_PATTERN = [
   4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2,
   3, 2, 4, 3, 2, 2, 4, 2, 2, 3, 4, 2, 3, 2, 4, 3, 2, 2,
 ]
+const LUNAR_DAY_MAP: Record<string, string> = {
+  '1': '\u521d\u4e00',
+  '2': '\u521d\u4e8c',
+  '3': '\u521d\u4e09',
+  '4': '\u521d\u56db',
+  '5': '\u521d\u4e94',
+  '6': '\u521d\u516d',
+  '7': '\u521d\u4e03',
+  '8': '\u521d\u516b',
+  '9': '\u521d\u4e5d',
+  '10': '\u521d\u5341',
+  '11': '\u5341\u4e00',
+  '12': '\u5341\u4e8c',
+  '13': '\u5341\u4e09',
+  '14': '\u5341\u56db',
+  '15': '\u5341\u4e94',
+  '16': '\u5341\u516d',
+  '17': '\u5341\u4e03',
+  '18': '\u5341\u516b',
+  '19': '\u5341\u4e5d',
+  '20': '\u4e8c\u5341',
+  '21': '\u5eff\u4e00',
+  '22': '\u5eff\u4e8c',
+  '23': '\u5eff\u4e09',
+  '24': '\u5eff\u56db',
+  '25': '\u5eff\u4e94',
+  '26': '\u5eff\u516d',
+  '27': '\u5eff\u4e03',
+  '28': '\u5eff\u516b',
+  '29': '\u5eff\u4e5d',
+  '30': '\u4e09\u5341',
+}
 
 function toChineseYear(year: string) {
   return year
@@ -143,14 +148,18 @@ function getJulianDayNumber(date: Date) {
   )
 }
 
-function toPinyinGanzhi(token: string) {
-  const chars = token.replace(/[\u5e74\u6708\u65e5]/g, '').split('')
-  if (chars.length < 2) {
-    return token.toUpperCase()
+function normalizeLunarDisplay(label: string) {
+  const match = label.trim().match(/^(.+\u6708)(\d{1,2}|[^\d]+)$/)
+
+  if (!match) {
+    return label
   }
 
-  const [stem, branch] = chars
-  return `${STEM_PINYIN[stem] ?? stem}-${BRANCH_PINYIN[branch] ?? branch}`
+  const [, month, dayToken] = match
+  const normalizedDay =
+    dayToken in LUNAR_DAY_MAP ? `${LUNAR_DAY_MAP[dayToken]}日` : dayToken.endsWith('日') ? dayToken : `${dayToken}日`
+
+  return `${month}${normalizedDay}`
 }
 
 function buildLunarDetails(inputDate: string, fallbackDisplay: string): LunarDetails {
@@ -181,13 +190,8 @@ function buildLunarDetails(inputDate: string, fallbackDisplay: string): LunarDet
   ]
 
   return {
-    display: fallbackDisplay || `${lunarMonth}${lunarDay}`,
+    display: normalizeLunarDisplay(fallbackDisplay || `${lunarMonth}${lunarDay}`),
     pillarsZh,
-    pillarsEn: [
-      `YEAR OF ${toPinyinGanzhi(pillarsZh[0])}`,
-      `MONTH OF ${toPinyinGanzhi(pillarsZh[1])}`,
-      `DAY OF ${toPinyinGanzhi(pillarsZh[2])}`,
-    ],
   }
 }
 
@@ -211,7 +215,7 @@ function buildViewModel(source: ReceiptAlmanac) {
   }
 }
 
-export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(function ReceiptCanvas(
+export const ReceiptCanvas = forwardRef<HTMLElement, ReceiptCanvasProps>(function ReceiptCanvas(
   { receipt, mode = 'default' },
   ref,
 ) {
@@ -279,11 +283,6 @@ export const ReceiptCanvas = forwardRef<HTMLDivElement, ReceiptCanvasProps>(func
           <div className="receipt-lunar__body">
             <div className="receipt-lunar__pillars">
               {view.lunarDetails.pillarsZh.map((item) => (
-                <span key={item}>{item}</span>
-              ))}
-            </div>
-            <div className="receipt-lunar__gloss">
-              {view.lunarDetails.pillarsEn.map((item) => (
                 <span key={item}>{item}</span>
               ))}
             </div>

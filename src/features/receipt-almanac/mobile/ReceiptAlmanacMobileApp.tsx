@@ -1,5 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
+import type { Ref, RefObject } from 'react'
 import { buildReceiptDateBlock } from '../../../lib/date'
+import { exportNodeAsPng } from '../../../lib/exportImage'
 import { ReceiptCanvas } from '../components/ReceiptCanvas'
 import { generateReceiptContent } from '../services/generateReceiptContent'
 import type { ReceiptAlmanac } from '../types/receipt'
@@ -26,6 +28,7 @@ const COPY = {
   swipeHint: '\u5de6\u6ed1\u67e5\u770b\u4eca\u65e5\u5c0f\u7968',
   generate: '\u751f\u6210\u4eca\u65e5\u5c0f\u7968',
   backToInput: '\u8fd4\u56de\u8f93\u5165\u9875',
+  save: '\u4fdd\u5b58',
   previewEmptyTitle: '\u5f53\u524d\u8fd8\u6ca1\u6709\u53ef\u9884\u89c8\u7684\u5c0f\u7968',
   previewEmptyDraft:
     '\u5148\u751f\u6210\u5f53\u524d\u65e5\u671f\u5185\u5bb9\uff0c\u518d\u5de6\u6ed1\u67e5\u770b\u5f53\u65e5\u5c0f\u7968\u3002',
@@ -351,40 +354,35 @@ function CloseIcon() {
 }
 
 function ReceiptPreviewPanel({
-  entry,
+  receipt,
   selectedDate,
-  draft,
+  hasDraft,
+  receiptRef,
 }: {
-  entry?: GeneratedReceiptEntry
+  receipt?: ReceiptAlmanac
   selectedDate: string
-  draft: string
+  hasDraft: boolean
+  receiptRef: RefObject<HTMLElement | null>
 }) {
-  const normalizedDraft = draft.trim()
-
-  if (!entry || entry.draft !== normalizedDraft) {
+  if (!receipt) {
     return (
       <section className="ra-receipt-preview ra-receipt-preview--empty">
         <div className="ra-receipt-preview__empty-card">
           <p className="ra-mono-label">RECEIPT PREVIEW</p>
           <h2>{COPY.previewEmptyTitle}</h2>
-          <p>{normalizedDraft ? COPY.previewEmptyDraft : COPY.previewEmptyBlank}</p>
+          <p>{hasDraft ? COPY.previewEmptyDraft : COPY.previewEmptyBlank}</p>
           <span>{selectedDate}</span>
         </div>
       </section>
     )
   }
 
-  const receipt = normalizeReceiptRecord(entry.receipt, {
-    userInput: entry.draft,
-    date: entry.dateIso,
-  })
-
   return (
-    <section className="ra-receipt-preview">
-      <div className="ra-receipt-preview__canvas">
-        <ReceiptCanvas receipt={receipt} mode="preview" />
-      </div>
-    </section>
+      <section className="ra-receipt-preview">
+        <div className="ra-receipt-preview__canvas">
+          <ReceiptCanvas receipt={receipt} mode="preview" ref={receiptRef as Ref<HTMLElement>} />
+        </div>
+      </section>
   )
 }
 
@@ -409,9 +407,11 @@ export function ReceiptAlmanacMobileApp() {
   const [, setActivePanel] = useState<PanelView>('input')
   const [isArchiveOpen, setIsArchiveOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
+  const receiptRef = useRef<HTMLElement>(null!)
 
   const draft = drafts[selectedDate] ?? ''
   const generatedEntry = generatedMap[selectedDate]
+  const normalizedDraft = draft.trim()
   const dateMeta = buildReceiptDateBlock(selectedDate)
   const lunarSummary = useMemo(
     () => buildLunarSummary(selectedDate, dateMeta.ganzhi, dateMeta.lunar),
@@ -433,6 +433,13 @@ export function ReceiptAlmanacMobileApp() {
         }),
     [generatedMap],
   )
+  const previewEntry =
+    generatedEntry && generatedEntry.draft === normalizedDraft
+      ? normalizeReceiptRecord(generatedEntry.receipt, {
+          userInput: generatedEntry.draft,
+          date: generatedEntry.dateIso,
+        })
+      : undefined
 
   const handleDraftChange = (value: string) => {
     setDrafts((current) => ({
@@ -442,7 +449,6 @@ export function ReceiptAlmanacMobileApp() {
   }
 
   const handleGenerate = async () => {
-    const normalizedDraft = draft.trim()
     if (!normalizedDraft || isGenerating) {
       return
     }
@@ -475,6 +481,17 @@ export function ReceiptAlmanacMobileApp() {
     } finally {
       setIsGenerating(false)
     }
+  }
+
+  const handleSaveReceipt = async () => {
+    if (!previewEntry || !receiptRef.current) {
+      return
+    }
+
+    await exportNodeAsPng(
+      receiptRef.current,
+      `${previewEntry.issueCode}-${previewEntry.serialNo}-long.png`,
+    )
   }
 
   return (
@@ -674,17 +691,32 @@ export function ReceiptAlmanacMobileApp() {
                   <SwipeHintIcon />
                   <span>{COPY.backToInput}</span>
                 </button>
-                <button
-                  className="ra-receipt-toolbar__archive"
-                  onClick={() => setIsArchiveOpen(true)}
-                  type="button"
-                  aria-label={COPY.archive}
-                >
-                  <ArchiveIcon />
-                </button>
+                <div className="ra-receipt-toolbar__actions">
+                  <button
+                    className="ra-receipt-toolbar__save"
+                    onClick={handleSaveReceipt}
+                    type="button"
+                    disabled={!previewEntry}
+                  >
+                    <span>{COPY.save}</span>
+                  </button>
+                  <button
+                    className="ra-receipt-toolbar__archive"
+                    onClick={() => setIsArchiveOpen(true)}
+                    type="button"
+                    aria-label={COPY.archive}
+                  >
+                    <ArchiveIcon />
+                  </button>
+                </div>
               </section>
 
-              <ReceiptPreviewPanel entry={generatedEntry} selectedDate={selectedDate} draft={draft} />
+              <ReceiptPreviewPanel
+                receipt={previewEntry}
+                selectedDate={selectedDate}
+                hasDraft={Boolean(normalizedDraft)}
+                receiptRef={receiptRef}
+              />
             </div>
           </section>
         </div>
