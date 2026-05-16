@@ -1024,9 +1024,11 @@ button {
   }
 
   .ra-mobile-frame {
+    box-sizing: border-box;
     position: relative;
     width: min(402px, calc((100vh - 64px) * 402 / 874));
     height: min(874px, calc(100vh - 64px));
+    min-height: 0;
     aspect-ratio: 402 / 874;
     border: 1px solid #ded5ca;
     border-radius: 36px;
@@ -1038,27 +1040,70 @@ button {
       0 8px 20px rgba(72, 57, 44, 0.08);
   }
 
+  .ra-mobile-frame::before,
+  .ra-mobile-frame::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 35;
+  }
+
+  .ra-mobile-frame::before {
+    display: none;
+  }
+
+  .ra-mobile-frame::after {
+    bottom: 12px;
+    width: 122px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(80, 65, 50, 0.14);
+  }
+
   .ra-mobile-frame .ra-app-shell,
   .ra-mobile-frame .ra-page-frame,
   .ra-mobile-frame .ra-panels,
-  .ra-mobile-frame .ra-panel,
-  .ra-mobile-frame .ra-screen {
+  .ra-mobile-frame .ra-panel {
+    height: 100%;
     min-height: 100%;
   }
 
   .ra-mobile-frame .ra-screen {
     max-width: none;
+    min-height: 100%;
+  }
+
+  .ra-mobile-frame .ra-screen--home {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 28px;
   }
 
   .ra-mobile-frame .ra-page-frame {
     height: 100%;
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
+    padding-bottom: 0;
   }
 
   .ra-mobile-frame .ra-screen--receipt {
     display: flex;
     flex-direction: column;
+    min-height: auto;
+  }
+
+  .ra-mobile-frame .ra-screen--home .ra-swipe-hint {
+    margin-top: auto;
+  }
+
+  .ra-mobile-frame .ra-panel--input,
+  .ra-mobile-frame .ra-panel--receipt {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .ra-mobile-frame .ra-receipt-preview {
