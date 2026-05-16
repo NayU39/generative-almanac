@@ -214,11 +214,23 @@ button {
 }
 
 .ra-strip-card {
+  position: relative;
   margin-top: 16px;
   display: grid;
   grid-template-columns: 16px minmax(0, 1fr) 16px;
   align-items: center;
   column-gap: 8px;
+  padding-bottom: 12px;
+}
+
+.ra-strip-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(80, 65, 50, 0.12);
 }
 
 .ra-strip-card__arrow {
@@ -307,7 +319,7 @@ button {
 }
 
 .ra-date-card {
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .ra-date-card__top,
@@ -466,7 +478,7 @@ button {
 }
 
 .ra-divider {
-  margin-top: 12px;
+  margin-top: 14px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -488,7 +500,7 @@ button {
 }
 
 .ra-input-card {
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .ra-input-card__head {
@@ -1013,9 +1025,8 @@ button {
 
   .ra-mobile-frame {
     position: relative;
-    width: 402px;
-    height: 874px;
-    max-height: calc(100vh - 64px);
+    width: min(402px, calc((100vh - 64px) * 402 / 874));
+    height: min(874px, calc(100vh - 64px));
     aspect-ratio: 402 / 874;
     border: 1px solid #ded5ca;
     border-radius: 36px;
