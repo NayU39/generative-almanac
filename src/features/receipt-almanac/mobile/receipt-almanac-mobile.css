@@ -28,12 +28,23 @@ body {
   margin: 0;
   min-width: 320px;
   overflow-x: hidden;
+  overflow-y: auto;
   background:
     radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.84), transparent 34%),
     radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.54), transparent 28%),
     radial-gradient(circle at 82% 76%, rgba(255, 255, 255, 0.42), transparent 26%),
     #f5f2ee;
   color: var(--ra-ink);
+}
+
+.ra-demo-shell {
+  width: 100%;
+  min-height: 100dvh;
+}
+
+.ra-mobile-frame {
+  width: 100%;
+  min-height: 100dvh;
 }
 
 button,
@@ -59,6 +70,10 @@ button {
   width: 100%;
   min-height: 100dvh;
   background: transparent;
+  overflow-y: auto;
+}
+
+.ra-page-frame.is-input-active {
   overflow-y: auto;
 }
 
@@ -96,13 +111,23 @@ button {
   scrollbar-width: none;
 }
 
+.ra-page-frame.is-input-active .ra-panel--input {
+  overflow-y: visible;
+  overflow-x: visible;
+}
+
 .ra-screen {
   position: relative;
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
   margin: 0 auto;
-  padding: 28px 20px 24px;
+  padding: 20px 20px 18px;
+}
+
+.ra-screen--home {
+  min-height: auto;
+  padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
 }
 
 .ra-screen--receipt {
@@ -132,7 +157,7 @@ button {
 
 .ra-home-header__row {
   position: relative;
-  min-height: 58px;
+  min-height: 48px;
   padding-right: 84px;
 }
 
@@ -141,30 +166,30 @@ button {
 }
 
 .ra-title-box h1 {
-  font-size: clamp(24px, 7.2vw, 30px);
-  line-height: 1.12;
+  font-size: clamp(22px, 6.6vw, 28px);
+  line-height: 1.08;
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
 .ra-subtitle-box {
-  margin-top: 12px;
+  margin-top: 7px;
 }
 
 .ra-subtitle-box p {
   margin: 0;
   color: var(--ra-ink);
-  font-size: 12px;
-  line-height: 1.45;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
 }
 
 .ra-archive-entry {
   position: absolute;
   top: 2px;
   right: 0;
-  width: 78px;
-  height: 48px;
+  width: 74px;
+  height: 44px;
   display: grid;
   align-content: center;
   justify-items: center;
@@ -177,23 +202,23 @@ button {
 }
 
 .ra-archive-entry span {
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.03em;
 }
 
 .ra-archive-entry small {
   color: var(--ra-ink-soft);
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
 }
 
 .ra-strip-card {
-  margin-top: 24px;
+  margin-top: 16px;
   display: grid;
   grid-template-columns: 16px minmax(0, 1fr) 16px;
   align-items: center;
-  column-gap: 10px;
+  column-gap: 8px;
 }
 
 .ra-strip-card__arrow {
@@ -222,12 +247,12 @@ button {
   position: relative;
   flex: 1 1 0;
   min-width: 0;
-  height: 72px;
+  height: 62px;
   display: grid;
   justify-items: center;
   align-content: start;
-  row-gap: 8px;
-  padding-top: 8px;
+  row-gap: 6px;
+  padding-top: 6px;
   color: var(--ra-ink);
   cursor: pointer;
 }
@@ -241,12 +266,12 @@ button {
 
 .ra-mini-date span {
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.04em;
 }
 
 .ra-mini-date strong {
-  font-size: clamp(16px, 4.3vw, 18px);
+  font-size: clamp(15px, 4vw, 17px);
   font-weight: 400;
   line-height: 1;
 }
@@ -266,10 +291,10 @@ button {
 }
 
 .ra-mini-date.is-selected {
-  flex: 0 0 56px;
-  width: 56px;
-  height: 86px;
-  padding-top: 12px;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 74px;
+  padding-top: 9px;
 }
 
 .ra-mini-date.is-selected::before {
@@ -277,12 +302,12 @@ button {
   position: absolute;
   inset: 0;
   border: 1px solid var(--ra-line);
-  border-radius: 20px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.1);
 }
 
 .ra-date-card {
-  margin-top: 24px;
+  margin-top: 18px;
 }
 
 .ra-date-card__top,
@@ -295,18 +320,18 @@ button {
 
 .ra-date-card__top {
   justify-content: space-between;
-  gap: 18px;
+  gap: 14px;
 }
 
 .ra-date-card__labels,
 .ra-date-card__status {
-  gap: 12px;
+  gap: 10px;
 }
 
 .ra-date-card__solar {
   color: var(--ra-ink);
-  font-size: 13px;
-  letter-spacing: 0.05em;
+  font-size: 12px;
+  letter-spacing: 0.03em;
 }
 
 .ra-date-card__status {
@@ -317,9 +342,9 @@ button {
 .ra-radio-status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   color: var(--ra-ink-soft);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.03em;
   white-space: nowrap;
   opacity: 0.8;
@@ -341,11 +366,11 @@ button {
 }
 
 .ra-date-card__main {
-  margin-top: 12px;
+  margin-top: 8px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 
 .ra-date-card__digits {
@@ -358,7 +383,7 @@ button {
   align-items: baseline;
   gap: 0;
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-  font-size: clamp(60px, 20vw, 84px);
+  font-size: clamp(52px, 17.5vw, 72px);
   line-height: 0.88;
   letter-spacing: -0.05em;
   color: var(--ra-ink);
@@ -367,7 +392,7 @@ button {
 }
 
 .ra-date-card__line + .ra-date-card__line {
-  margin-top: 2px;
+  margin-top: 0;
 }
 
 .ra-date-card__line em {
@@ -378,15 +403,15 @@ button {
 }
 
 .ra-weekday-capsule {
-  width: 54px;
-  min-width: 54px;
-  height: 68px;
+  width: 48px;
+  min-width: 48px;
+  height: 60px;
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 4px;
+  gap: 3px;
   border: 1px solid var(--ra-line);
-  border-radius: 18px;
+  border-radius: 16px;
   text-align: center;
 }
 
@@ -397,29 +422,29 @@ button {
 }
 
 .ra-weekday-capsule strong {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.1;
 }
 
 .ra-weekday-capsule small {
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
 }
 
 .ra-date-card__bottom {
-  margin-top: 16px;
+  margin-top: 10px;
   display: block;
   gap: 8px;
   color: var(--ra-ink);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.42;
 }
 
 .ra-date-card__bottom .ra-date-card__solar {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .ra-date-card__lunar-row {
@@ -429,22 +454,22 @@ button {
   gap: 0;
   min-width: 0;
   color: #574f48;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
 .ra-date-card__lunar-row span + span::before {
   content: '|';
-  margin: 0 10px;
+  margin: 0 8px;
   color: #c2b7ad;
 }
 
 .ra-divider {
-  margin-top: 18px;
+  margin-top: 12px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .ra-divider::before,
@@ -463,14 +488,14 @@ button {
 }
 
 .ra-input-card {
-  margin-top: 22px;
+  margin-top: 14px;
 }
 
 .ra-input-card__head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .ra-input-card__head > div {
@@ -479,52 +504,52 @@ button {
 }
 
 .ra-input-card h2 {
-  margin-top: 10px;
-  font-size: 24px;
-  line-height: 1.16;
-  letter-spacing: 0.08em;
+  margin-top: 7px;
+  font-size: 22px;
+  line-height: 1.12;
+  letter-spacing: 0.05em;
 }
 
 .ra-input-card p:last-child {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: var(--ra-ink-soft);
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .ra-input-card__count {
   color: #a59b92;
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   transform: translateY(-2px);
   white-space: nowrap;
 }
 
 .ra-editor-card {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .ra-editor-card__field {
   position: relative;
-  min-height: 188px;
+  min-height: 170px;
   border: 1px solid var(--ra-line);
   border-radius: 20px;
-  padding: 16px;
+  padding: 14px;
   background: rgba(255, 255, 255, 0.12);
 }
 
 .ra-editor-card textarea {
   width: 100%;
-  min-height: 150px;
+  min-height: 136px;
   resize: none;
   border: 0;
   outline: none;
   background: transparent;
   color: var(--ra-ink);
   padding: 0;
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .ra-editor-card textarea::placeholder {
@@ -533,8 +558,8 @@ button {
 
 .ra-editor-card__feather {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  right: 16px;
+  bottom: 16px;
   color: #d2c7be;
 }
 
@@ -544,14 +569,14 @@ button {
 }
 
 .ra-swipe-hint {
-  margin-top: 14px;
-  min-height: 50px;
+  margin-top: 10px;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--ra-line);
-  border-radius: 18px;
+  border-radius: 16px;
   color: var(--ra-ink-soft);
   background: rgba(255, 255, 255, 0.08);
 }
@@ -565,8 +590,8 @@ button {
 }
 
 .ra-swipe-hint__icon svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 .ra-swipe-hint__copy {
@@ -577,28 +602,28 @@ button {
 
 .ra-swipe-hint__copy strong {
   color: var(--ra-ink);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
 }
 
 .ra-swipe-hint__copy small {
   color: #998f85;
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  letter-spacing: 0.06em;
 }
 
 .ra-generate-button {
   width: 100%;
-  height: 64px;
-  margin-top: 14px;
+  height: 58px;
+  margin-top: 10px;
   display: grid;
-  grid-template-columns: 32px 1fr 40px;
+  grid-template-columns: 28px 1fr 34px;
   align-items: center;
-  gap: 14px;
-  padding: 0 22px;
-  border-radius: 18px;
+  gap: 10px;
+  padding: 0 18px;
+  border-radius: 16px;
   background: linear-gradient(180deg, #222220 0%, var(--ra-button) 100%);
   color: #f5f0e9;
   box-shadow:
@@ -621,8 +646,8 @@ button {
 }
 
 .ra-generate-button__icon svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
 .ra-generate-button__copy {
@@ -632,9 +657,9 @@ button {
 
 .ra-generate-button__copy strong {
   color: #f7f2eb;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
 }
 
 .ra-generate-button__arrow {
@@ -642,8 +667,8 @@ button {
 }
 
 .ra-generate-button__arrow svg {
-  width: 36px;
-  height: 20px;
+  width: 30px;
+  height: 18px;
 }
 
 .ra-receipt-toolbar {
@@ -962,12 +987,90 @@ button {
   .ra-archive-drawer {
     max-width: none;
   }
+
+  .ra-screen {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    overflow-y: hidden;
+    background: #e8e1d8;
+  }
+
+  .ra-demo-shell {
+    min-height: 100dvh;
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.5), transparent 28%),
+      linear-gradient(180deg, #eee7df 0%, #e5ddd3 100%);
+  }
+
+  .ra-mobile-frame {
+    position: relative;
+    width: 402px;
+    height: 874px;
+    max-height: calc(100vh - 64px);
+    aspect-ratio: 402 / 874;
+    border: 1px solid #ded5ca;
+    border-radius: 36px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background: #fcfaf6;
+    box-shadow:
+      0 24px 60px rgba(72, 57, 44, 0.12),
+      0 8px 20px rgba(72, 57, 44, 0.08);
+  }
+
+  .ra-mobile-frame .ra-app-shell,
+  .ra-mobile-frame .ra-page-frame,
+  .ra-mobile-frame .ra-panels,
+  .ra-mobile-frame .ra-panel,
+  .ra-mobile-frame .ra-screen {
+    min-height: 100%;
+  }
+
+  .ra-mobile-frame .ra-screen {
+    max-width: none;
+  }
+
+  .ra-mobile-frame .ra-page-frame {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .ra-mobile-frame .ra-screen--receipt {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ra-mobile-frame .ra-receipt-preview {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .ra-mobile-frame .ra-archive-layer,
+  .ra-mobile-frame .ra-overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .ra-mobile-frame .ra-archive-drawer {
+    max-width: none;
+    min-height: 100%;
+  }
 }
 
 @media (max-width: 375px) {
   .ra-screen {
-    padding-left: 18px;
-    padding-right: 18px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .ra-home-header__row {
@@ -975,21 +1078,21 @@ button {
   }
 
   .ra-title-box h1 {
-    font-size: 23px;
+    font-size: 21px;
   }
 
   .ra-subtitle-box p {
     font-size: 11px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
   }
 
   .ra-archive-entry {
-    width: 72px;
-    height: 44px;
+    width: 68px;
+    height: 42px;
   }
 
   .ra-date-card__line {
-    font-size: 56px;
+    font-size: 50px;
   }
 
   .ra-date-card__lunar-row {

@@ -404,7 +404,7 @@ export function ReceiptAlmanacMobileApp() {
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [generatedMap, setGeneratedMap] = useState<Record<string, GeneratedReceiptEntry>>({})
   const [isGenerating, setIsGenerating] = useState(false)
-  const [, setActivePanel] = useState<PanelView>('input')
+  const [activePanel, setActivePanel] = useState<PanelView>('input')
   const [isArchiveOpen, setIsArchiveOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const receiptRef = useRef<HTMLElement>(null!)
@@ -496,7 +496,7 @@ export function ReceiptAlmanacMobileApp() {
 
   return (
     <main className="ra-app-shell">
-      <div className="ra-page-frame">
+      <div className={`ra-page-frame ${activePanel === 'input' ? 'is-input-active' : 'is-receipt-active'}`}>
         <div
           className="ra-panels"
           ref={panelRef}
@@ -506,7 +506,7 @@ export function ReceiptAlmanacMobileApp() {
           }}
         >
           <section className="ra-panel ra-panel--input">
-            <div className="ra-screen">
+            <div className="ra-screen ra-screen--home">
               <header className="ra-home-header">
                 <div className="ra-home-header__row">
                   <div className="ra-home-header__copy">
