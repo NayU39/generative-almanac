@@ -61,6 +61,14 @@ CloudBase function source lives in [cloudbase/functions/receipt-generate/index.j
 
 CloudBase CLI config lives in [cloudbase/cloudbaserc.json](E:\receipt-almanac\cloudbase\cloudbaserc.json).
 
+The CloudBase HTTP function directory also includes:
+
+- `package.json`
+- `package-lock.json`
+- `scf_bootstrap`
+
+`scf_bootstrap` is required by CloudBase HTTP functions. It starts `@cloudbase/functions-framework`, which loads `exports.main` from `index.js` and serves HTTP traffic on port `9000`.
+
 Deploy the function manually:
 
 ```bash

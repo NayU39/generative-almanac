@@ -215,6 +215,16 @@ function json(payload, statusCode = 200, extraHeaders = {}) {
   }
 }
 
+function getCorsHeaders(event) {
+  const origin = event?.headers?.origin || event?.headers?.Origin || '*'
+
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+}
+
 function parseEventBody(event) {
   if (!event || typeof event.body !== 'string' || event.body.trim() === '') {
     return {}
@@ -224,18 +234,25 @@ function parseEventBody(event) {
 }
 
 exports.main = async (event) => {
-  if (event?.httpMethod === 'OPTIONS') {
+  const corsHeaders = getCorsHeaders(event)
+  const httpMethod = event?.httpMethod || event?.method
+
+  if (httpMethod === 'OPTIONS') {
     return {
       statusCode: 204,
       headers: {
+        ...corsHeaders,
         Allow: 'POST, OPTIONS',
       },
       body: '',
     }
   }
 
-  if (event?.httpMethod !== 'POST') {
-    return json({ error: 'Method not allowed.' }, 405, { Allow: 'POST, OPTIONS' })
+  if (httpMethod !== 'POST') {
+    return json({ error: 'Method not allowed.' }, 405, {
+      ...corsHeaders,
+      Allow: 'POST, OPTIONS',
+    })
   }
 
   try {
@@ -246,23 +263,24 @@ exports.main = async (event) => {
         receipt: buildMockReceipt(input.userInput, input.date),
         source: 'mock',
         warning: 'DEEPSEEK_API_KEY is missing, fallback to mock.',
-      })
+      }, 200, corsHeaders)
     }
 
     try {
       const receipt = await generateReceiptWithDeepSeek(input, process.env)
-      return json({ receipt, source: 'ai' })
+      return json({ receipt, source: 'ai' }, 200, corsHeaders)
     } catch (error) {
       return json({
         receipt: buildMockReceipt(input.userInput, input.date),
         source: 'mock',
         warning: error instanceof Error ? error.message : 'Unknown AI generation error.',
-      })
+      }, 200, corsHeaders)
     }
   } catch (error) {
     return json(
       { error: error instanceof Error ? error.message : 'Unknown server error.' },
       500,
+      corsHeaders,
     )
   }
 }
