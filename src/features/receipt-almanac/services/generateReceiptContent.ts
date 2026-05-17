@@ -3,21 +3,34 @@ import { buildMockReceipt } from '../data/mockReceipt'
 import type { GenerateReceiptParams, ReceiptAlmanac } from '../types/receipt'
 import { normalizeReceiptRecord } from '../utils/normalizeReceiptRecord'
 
+const DEFAULT_API_PATH = '/api/receipt-almanac/generate'
+
+function joinApiUrl(baseUrl: string, path: string) {
+  const normalizedBase = baseUrl.replace(/\/+$/, '')
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  return `${normalizedBase}${normalizedPath}`
+}
+
 function getApiUrl() {
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+  if (configuredBaseUrl) {
+    return joinApiUrl(configuredBaseUrl, DEFAULT_API_PATH)
+  }
+
   if (typeof window === 'undefined') {
-    return '/api/receipt-almanac/generate'
+    return DEFAULT_API_PATH
   }
 
   if (window.location.protocol === 'file:') {
-    return '/api/receipt-almanac/generate'
+    return DEFAULT_API_PATH
   }
 
   const { origin, hostname, protocol, port } = window.location
   if (hostname === 'localhost') {
-    return `${protocol}//127.0.0.1${port ? `:${port}` : ''}/api/receipt-almanac/generate`
+    return `${protocol}//127.0.0.1${port ? `:${port}` : ''}${DEFAULT_API_PATH}`
   }
 
-  return `${origin}/api/receipt-almanac/generate`
+  return `${origin}${DEFAULT_API_PATH}`
 }
 
 export async function generateReceiptContent(input: GenerateReceiptParams): Promise<ReceiptAlmanac> {

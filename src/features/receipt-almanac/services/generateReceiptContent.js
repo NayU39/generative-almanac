@@ -48,18 +48,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import { getTodayIsoDate } from '../../../lib/date';
 import { buildMockReceipt } from '../data/mockReceipt';
 import { normalizeReceiptRecord } from '../utils/normalizeReceiptRecord';
+var DEFAULT_API_PATH = '/api/receipt-almanac/generate';
+function joinApiUrl(baseUrl, path) {
+    var normalizedBase = baseUrl.replace(/\/+$/, '');
+    var normalizedPath = path.startsWith('/') ? path : "/".concat(path);
+    return "".concat(normalizedBase).concat(normalizedPath);
+}
 function getApiUrl() {
+    var _a;
+    var configuredBaseUrl = (_a = import.meta.env.VITE_API_BASE_URL) === null || _a === void 0 ? void 0 : _a.trim();
+    if (configuredBaseUrl) {
+        return joinApiUrl(configuredBaseUrl, DEFAULT_API_PATH);
+    }
     if (typeof window === 'undefined') {
-        return '/api/receipt-almanac/generate';
+        return DEFAULT_API_PATH;
     }
     if (window.location.protocol === 'file:') {
-        return '/api/receipt-almanac/generate';
+        return DEFAULT_API_PATH;
     }
-    var _a = window.location, origin = _a.origin, hostname = _a.hostname, protocol = _a.protocol, port = _a.port;
+    var _b = window.location, origin = _b.origin, hostname = _b.hostname, protocol = _b.protocol, port = _b.port;
     if (hostname === 'localhost') {
-        return "".concat(protocol, "//127.0.0.1").concat(port ? ":".concat(port) : '', "/api/receipt-almanac/generate");
+        return "".concat(protocol, "//127.0.0.1").concat(port ? ":".concat(port) : '').concat(DEFAULT_API_PATH);
     }
-    return "".concat(origin, "/api/receipt-almanac/generate");
+    return "".concat(origin).concat(DEFAULT_API_PATH);
 }
 export function generateReceiptContent(input) {
     return __awaiter(this, void 0, void 0, function () {

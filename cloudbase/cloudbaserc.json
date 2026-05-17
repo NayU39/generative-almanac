@@ -1,0 +1,15 @@
+{
+  "version": "2.0",
+  "envId": "{{env.TCB_ENV_ID}}",
+  "functionRoot": "./functions",
+  "functions": [
+    {
+      "name": "receipt-generate",
+      "type": "HTTP",
+      "handler": "index.main",
+      "runtime": "Nodejs18.15",
+      "timeout": 15,
+      "installDependency": true
+    }
+  ]
+}
