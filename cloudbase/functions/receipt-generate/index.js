@@ -225,17 +225,59 @@ function getCorsHeaders(event) {
   }
 }
 
+function getHttpMethod(event) {
+  const candidate =
+    event?.httpMethod ||
+    event?.method ||
+    event?.requestContext?.http?.method ||
+    event?.requestContext?.httpMethod ||
+    event?.headers?.['x-http-method-override'] ||
+    event?.headers?.['X-HTTP-Method-Override'] ||
+    ''
+
+  const normalized = String(candidate).trim().toUpperCase()
+  if (normalized) {
+    return normalized
+  }
+
+  return typeof event?.body === 'string' && event.body.trim() ? 'POST' : ''
+}
+
 function parseEventBody(event) {
-  if (!event || typeof event.body !== 'string' || event.body.trim() === '') {
+  if (!event) {
     return {}
   }
 
-  return JSON.parse(event.body)
+  if (typeof event.body === 'string') {
+    if (!event.body.trim()) {
+      return {}
+    }
+
+    const rawBody = event.isBase64Encoded
+      ? Buffer.from(event.body, 'base64').toString('utf8')
+      : event.body
+
+    return JSON.parse(rawBody)
+  }
+
+  if (typeof event.body === 'object' && event.body !== null) {
+    return event.body
+  }
+
+  if (
+    typeof event.userInput === 'string' ||
+    typeof event.date === 'string' ||
+    typeof event.timezone === 'string'
+  ) {
+    return event
+  }
+
+  return {}
 }
 
 exports.main = async (event) => {
   const corsHeaders = getCorsHeaders(event)
-  const httpMethod = event?.httpMethod || event?.method
+  const httpMethod = getHttpMethod(event)
 
   if (httpMethod === 'OPTIONS') {
     return {
@@ -246,13 +288,6 @@ exports.main = async (event) => {
       },
       body: '',
     }
-  }
-
-  if (httpMethod !== 'POST') {
-    return json({ error: 'Method not allowed.' }, 405, {
-      ...corsHeaders,
-      Allow: 'POST, OPTIONS',
-    })
   }
 
   try {

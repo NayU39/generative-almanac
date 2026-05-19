@@ -43,7 +43,7 @@ Workflow behavior:
 - Runs `npm run build`
 - Installs `@cloudbase/cli`
 - Logs in with GitHub Secrets
-- Deploys `./dist` to `/home`
+- Deploys `./dist` to `/`
 
 Manual equivalent:
 
@@ -52,7 +52,7 @@ npm ci
 npm run build
 npm install -g @cloudbase/cli
 tcb login --apiKeyId <SecretId> --apiKey <SecretKey>
-tcb hosting deploy ./dist /home -e <envId>
+tcb hosting deploy ./dist / -e <envId>
 ```
 
 ## Cloud Function Deployment
